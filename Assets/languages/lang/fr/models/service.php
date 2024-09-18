@@ -1,0 +1,21 @@
+<?php
+return [
+    'service' => 'service',
+    'service_management' => 'Gestion des services',
+    'name' => 'Titre de service',
+    'staff' => 'Staff',
+    'images' => 'Images de service',
+    'category' => 'Catégorie',
+    'price' => 'Prix standard',
+    'discount_price' => 'Prix de promotion',
+    'duration' => 'Durée',
+    'description' => 'Description',
+    'enable_booking_at_salon' => 'Réservation au salon activée',
+    'enable_at_customer_address' => "Réservation à l'adresse du client activée",
+    'genre' => 'Genre',
+    'salon_id' => 'Salon',
+    "accepted"=> "Accepté",
+    'enable_at_client'=>"Activer à l'adresse du client",
+    'enable_at_salon'=>"Activer la réservation au salon",
+    "show" => "afficher les détails du service",
+    ];

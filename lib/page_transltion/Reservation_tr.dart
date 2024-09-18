@@ -1,0 +1,55 @@
+Map<String, String> Reservation_Arabic = {
+  "Aller vers le salon": "الانتقال إلى صالون التصفيف",
+  "Commandez le service a domicile": "أطلب خدمة التوصيل إلى المنزل",
+  "Date choisi:": "التاريخ المختار:",
+  "Resevation": "الحجز",
+  "Adresse": "العنوان",
+  "Entrez votre adresse ici": "أدخل ملاحظاتك هنا",
+  "Choisir Date": "اختر التاريخ",
+  "Choisir un staff": "اختيار موظف",
+  "Choisir l'heure": 'اختر الوقت',
+  "Téléphone": "الهاتف",
+  "Entrez votre numéro de téléphone": "أدخل رقم الهاتف",
+  "Nom": "الاسم",
+  "Entrez votre nom": "أدخل اسمك",
+  "Message": "الرسالة",
+  'Entrez votre message ici': 'أدخل رسالتك هنا',
+  "Prix": "السعر",
+  "Réserver maintenant": "احجز الآن",
+  'Succès': "نجاح",
+  'Réservation bien accomplie': 'تم إتمام الحجز بنجاح',
+  "Veuillez entrer votre numéro de téléphone": "يرجى إدخال رقم هاتفك",
+  "Le numéro de téléphone doit comporter au moins 9 chiffres":
+      "يجب أن يتكون رقم الهاتف من 9 أرقام على الأقل",
+  "Veuillez entrer votre nom": "يرجى إدخال اسمك",
+  "Le nom doit comporter au moins 6 caractères":
+      "يجب أن يكون الاسم على الأقل 6 أحرف"
+};
+
+Map<String, String> Reservation_English = {
+  "Le nom doit comporter au moins 6 caractères":
+      "The name must be at least 6 characters long",
+  "Veuillez entrer votre nom": "Please enter your name",
+  "Le numéro de téléphone doit comporter au moins 9 chiffres":
+      "The phone number must be at least 9 digits long",
+  "Aller vers le salon": "Go to the hair salon",
+  "Commandez le service a domicile": "Order home service",
+  "Date choisi:": "Selected Date:",
+  "Resevation": "Reservation",
+  "Adresse": "Address",
+  "Entrez votre adresse ici": "Enter your notes here",
+  "Choisir Date": "Select Date",
+  "Choisir un staff": "Choose a staff",
+  "Choisir l'heure": 'Select Time',
+  "Téléphone": "Phone",
+  "Entrez votre numéro de téléphone": "Enter your phone number",
+  "Nom": "Name",
+  "Entrez votre nom": "Enter your name",
+  "Message": "Message",
+  'Entrez votre message ici': 'Enter your message here',
+  "Prix": "Price",
+  "Réserver maintenant": "Book Now",
+  'Succès': "Success",
+  'Réservation bien accomplie': "Booking successfully completed",
+  "Veuillez entrer votre numéro de téléphone": "Please enter your phone number",
+};

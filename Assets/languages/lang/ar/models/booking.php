@@ -1,0 +1,26 @@
+<?php
+return [
+    'service_id' => 'الخدمة',
+    'staff_id' => 'الموظف',
+    'client_id' => 'العميل',
+    'address' => 'العنوان',
+    'payment_status' => 'حالة الدفع',
+    'booking_status' => 'حالة الحجز',
+    'start_at' => 'تاريخ البدء',
+    'end_at' => 'تاريخ الانتهاء',
+    "booking" => "الحجز",
+    "booking_management" => "إدارة الحجوزات",
+    'salon' => 'صالون',
+    "coupon" =>"قسيمة",
+    'name' => 'الاسم',
+    'email' => 'البريد الإلكتروني',
+    'role' => 'الدور',
+    'phone_number' => 'رقم الهاتف',
+    "description"=>"وصف",
+    "ajouter_client"=>"إضافة العميل",
+       "reservation_date"=>"تاريخ الحجز",
+    "reservation_address"=>"عنوان الحجز",
+        'status' => 'حالة',
+        "show" => "إظهار تفاصيل الحجز",
+
+];

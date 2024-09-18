@@ -1,0 +1,23 @@
+<?php
+return [
+          "image"=> "Image",
+          "name"=> "Nom",
+          "logo"=> "Logo",
+          "description"=> "Description",
+          "accepted"=> "Accepté",
+          "available"=> "Disponible",
+          "genre"=> "Genre",
+          "actions"=> "Actions",
+          "salons" => "salons",
+          "salon" => "Salon",
+          "salons_management" => "gestion des salons",
+          "address" => "Adresse",
+          "phone_number" => "numéro de téléphone ",
+          "mobile_number" => "Numéro de portable",
+          "availability_range" => "Plage de disponibilité",
+          "city" => "Ville",
+          "staff" => "Staff",
+          "spaowner" => "Propriétaire de spa",
+            "assinger" =>"Assigner des membres du personnel au salon",
+            "show" => "afficher les détails du salon",
+];

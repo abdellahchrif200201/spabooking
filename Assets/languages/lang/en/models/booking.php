@@ -1,0 +1,26 @@
+<?php
+return [
+    'service_id' => 'Service',
+    'salon' => 'salon',
+        'staff_id' => 'Staff',
+    'client_id' => 'Client',
+    'address' => 'Address',
+    'payment_status' => 'Payment status',
+    'booking_status' => 'Booking status',
+    'start_at' => 'Start date',
+    'end_at' => 'End date',
+    'booking' => 'Booking',
+    'booking_management' => 'Booking management',
+    "coupon" =>"coupon",
+    'name' => 'Name',
+    'email' => 'Email',
+    'role' => 'Role',
+    'phone_number' => 'Phone number',
+    "description"=>"Description",
+    "ajouter_client"=>"Add customer",
+     "reservation_date"=>"reservation date",
+    "reservation_address"=>"reservation address",
+  'status' => 'Statut',
+  "show" => "show booking details",
+
+];
