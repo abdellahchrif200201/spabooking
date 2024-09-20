@@ -66,20 +66,21 @@ class _CustomDrawerState extends State<CustomDrawer> {
         borderRadius: BorderRadius.circular(40.0),
       ),
       child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFD91A5B),
+        decoration: const BoxDecoration(
+          color: Color(0xFFD91A5B),
           borderRadius: BorderRadius.only(
             topRight: Radius.circular(20.0),
             bottomRight: Radius.circular(20.0),
+            
           ),
         ),
         child: ListView(
           children: <Widget>[
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             DrawerHeader(
-              margin: EdgeInsets.only(right: 10, left: 10),
+              margin: const EdgeInsets.only(right: 10, left: 10),
               decoration: const BoxDecoration(
                   color: Color.fromARGB(255, 250, 110, 157),
                   borderRadius: BorderRadius.only(
@@ -108,7 +109,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   if (name != '')
                     Text(
                       name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                       ),
@@ -116,7 +117,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   if (email != '')
                     Text(
                       email,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                       ),
@@ -124,7 +125,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 ],
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             _buildSubSection(
@@ -191,7 +192,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       elevation: 10.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
-                        side: BorderSide(
+                        side: const BorderSide(
                           color: Color(0xFFD91A5B), // Add border color here
                         ),
                       ),
@@ -202,12 +203,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 ? "أنت غير مسجل الدخول!"
                                 : "Vous n'êtes pas connecté!",
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Color(0xFFD91A5B)),
+                        style: const TextStyle(color: Color(0xFFD91A5B)),
                       ),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -218,19 +219,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          LoginView(comes: true),
+                                      builder: (context) => LoginView(comes: true),
                                     ),
                                   );
                                 },
-                                icon: Icon(Icons.login), // Add the login icon
+                                icon: const Icon(Icons.login), // Add the login icon
                                 label: Text(selectedLanguage == "English"
                                     ? "Sign In"
                                     : selectedLanguage == "Arabic"
                                         ? "تسجيل الدخول"
                                         : "Connexion"),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                               ElevatedButton.icon(
@@ -240,13 +240,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          SignUpView(comes: true),
+                                      builder: (context) => SignUpView(comes: true),
                                     ),
                                   );
                                 },
-                                icon: Icon(
-                                    Icons.person_add), // Add the sign-up icon
+                                icon: const Icon(Icons.person_add), // Add the sign-up icon
                                 label: Text(
                                   selectedLanguage == "English"
                                       ? "Sign Up"
@@ -287,7 +285,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       elevation: 10.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
-                        side: BorderSide(
+                        side: const BorderSide(
                           color: Color(0xFFD91A5B), // Add border color here
                         ),
                       ),
@@ -298,12 +296,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 ? "أنت غير مسجل الدخول!"
                                 : "Vous n'êtes pas connecté!",
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Color(0xFFD91A5B)),
+                        style: const TextStyle(color: Color(0xFFD91A5B)),
                       ),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -314,19 +312,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          LoginView(comes: true),
+                                      builder: (context) => LoginView(comes: true),
                                     ),
                                   );
                                 },
-                                icon: Icon(Icons.login), // Add the login icon
+                                icon: const Icon(Icons.login), // Add the login icon
                                 label: Text(selectedLanguage == "English"
                                     ? "Sign In"
                                     : selectedLanguage == "Arabic"
                                         ? "تسجيل الدخول"
                                         : "Connexion"),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                               ElevatedButton.icon(
@@ -336,13 +333,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          SignUpView(comes: true),
+                                      builder: (context) => SignUpView(comes: true),
                                     ),
                                   );
                                 },
-                                icon: Icon(
-                                    Icons.person_add), // Add the sign-up icon
+                                icon: const Icon(Icons.person_add), // Add the sign-up icon
                                 label: Text(
                                   selectedLanguage == "English"
                                       ? "Sign Up"
@@ -383,7 +378,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       elevation: 10.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
-                        side: BorderSide(
+                        side: const BorderSide(
                           color: Color(0xFFD91A5B), // Add border color here
                         ),
                       ),
@@ -394,12 +389,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 ? "أنت غير مسجل الدخول!"
                                 : "Vous n'êtes pas connecté!",
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Color(0xFFD91A5B)),
+                        style: const TextStyle(color: Color(0xFFD91A5B)),
                       ),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -410,19 +405,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          LoginView(comes: true),
+                                      builder: (context) => LoginView(comes: true),
                                     ),
                                   );
                                 },
-                                icon: Icon(Icons.login), // Add the login icon
+                                icon: const Icon(Icons.login), // Add the login icon
                                 label: Text(selectedLanguage == "English"
                                     ? "Sign In"
                                     : selectedLanguage == "Arabic"
                                         ? "تسجيل الدخول"
                                         : "Connexion"),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                               ElevatedButton.icon(
@@ -432,13 +426,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          SignUpView(comes: true),
+                                      builder: (context) => SignUpView(comes: true),
                                     ),
                                   );
                                 },
-                                icon: Icon(
-                                    Icons.person_add), // Add the sign-up icon
+                                icon: const Icon(Icons.person_add), // Add the sign-up icon
                                 label: Text(
                                   selectedLanguage == "English"
                                       ? "Sign Up"
@@ -479,7 +471,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       elevation: 10.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
-                        side: BorderSide(
+                        side: const BorderSide(
                           color: Color(0xFFD91A5B), // Add border color here
                         ),
                       ),
@@ -490,12 +482,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                 ? "أنت غير مسجل الدخول!"
                                 : "Vous n'êtes pas connecté!",
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Color(0xFFD91A5B)),
+                        style: const TextStyle(color: Color(0xFFD91A5B)),
                       ),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -506,19 +498,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          LoginView(comes: true),
+                                      builder: (context) => LoginView(comes: true),
                                     ),
                                   );
                                 },
-                                icon: Icon(Icons.login), // Add the login icon
+                                icon: const Icon(Icons.login), // Add the login icon
                                 label: Text(selectedLanguage == "English"
                                     ? "Sign In"
                                     : selectedLanguage == "Arabic"
                                         ? "تسجيل الدخول"
                                         : "Connexion"),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 15,
                               ),
                               ElevatedButton.icon(
@@ -528,13 +519,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          SignUpView(comes: true),
+                                      builder: (context) => SignUpView(comes: true),
                                     ),
                                   );
                                 },
-                                icon: Icon(
-                                    Icons.person_add), // Add the sign-up icon
+                                icon: const Icon(Icons.person_add), // Add the sign-up icon
                                 label: Text(
                                   selectedLanguage == "English"
                                       ? "Sign Up"
@@ -600,8 +589,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               prefs.clear();
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => LoginView(comes: false)),
+                MaterialPageRoute(builder: (context) => LoginView(comes: false)),
               );
             }),
 
@@ -712,18 +700,18 @@ class _CustomDrawerState extends State<CustomDrawer> {
       child: Row(
         children: [
           Container(
-              margin: EdgeInsets.only(right: 10),
-              padding: EdgeInsets.all(8),
+              margin: const EdgeInsets.only(right: 10),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
               ),
               child: child),
           Text(showlanguage),
-          SizedBox(
+          const SizedBox(
             width: 20,
           ),
           if (selectedLanguage == language)
-            Icon(
+            const Icon(
               Icons.check,
               color: Colors.pink,
             ),
@@ -732,17 +720,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
     );
   }
 
-  Widget _buildSubSection(
-      bool khez, String title, IconData icon, VoidCallback onTap) {
+  Widget _buildSubSection(bool khez, String title, IconData icon, VoidCallback onTap) {
     return Stack(
       children: [
-        if (widget.currentPage ==
-            title) // Show white container only for the selected option
+        if (widget.currentPage == title) // Show white container only for the selected option
           Positioned.fill(
               child: Container(
-            margin: EdgeInsets.only(
-                right: 50.0, top: 3, bottom: 3), // Add margin to the right
-            decoration: BoxDecoration(
+            margin: const EdgeInsets.only(right: 50.0, top: 3, bottom: 3), // Add margin to the right
+            decoration: const BoxDecoration(
               color: Colors.white, // Pink color
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(50.0),
@@ -756,16 +741,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
             title: Text(
               title,
               style: TextStyle(
-                color: widget.currentPage == title
-                    ? Color(0xFFD91A5B)
-                    : Colors.white,
+                color: widget.currentPage == title ? const Color(0xFFD91A5B) : Colors.white,
               ),
             ),
             leading: Icon(
               icon,
-              color: widget.currentPage == title
-                  ? Color(0xFFD91A5B)
-                  : Colors.white,
+              color: widget.currentPage == title ? const Color(0xFFD91A5B) : Colors.white,
             ),
             onTap: onTap,
           ),

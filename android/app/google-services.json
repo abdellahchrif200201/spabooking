@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "255849447400",
+    "project_id": "swap-rx",
+    "storage_bucket": "swap-rx.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:255849447400:android:8957c0bc7c0f91cfb7ee5d",
+        "android_client_info": {
+          "package_name": "com.spa_app2.spa_app2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQREAVNyocslbav3VlE6HJWrvBE-mb8es"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

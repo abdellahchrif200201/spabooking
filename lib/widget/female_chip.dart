@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 class FemmeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Chip(
+    return  const Chip(
       label: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
+        children: [
           Icon(
             Icons.woman,
             color: Color(0xFFD91A5B),
@@ -22,7 +22,7 @@ class FemmeChip extends StatelessWidget {
         ],
       ),
       backgroundColor: Colors.white,
-      shape: const StadiumBorder(
+      shape: StadiumBorder(
         side: BorderSide(
           color: Color(0xFFD91A5B),
           width: 1.5,

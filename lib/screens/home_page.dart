@@ -13,6 +13,7 @@ import 'package:spa/Models/services_view.dart';
 import 'package:spa/page_transltion/drawer_tr.dart';
 import 'package:spa/page_transltion/home_tr.dart';
 import 'package:spa/screens/List_salon.dart';
+import 'package:spa/screens/login_view.dart';
 import 'package:spa/screens/search_map.dart';
 import 'package:spa/screens/searchqueries.dart';
 import 'package:spa/screens/services_list.dart';
@@ -121,20 +122,14 @@ class _HomePageState extends State<HomePage> {
               .map((salon) {
                 // Check if 'media' is present and not empty
                 List<dynamic> mediaList = salon['media'] as List<dynamic>;
-                String mainImage =
-                    mediaList.isNotEmpty ? mediaList[0]['original_url'] : '';
+                String mainImage = mediaList.isNotEmpty ? mediaList[0]['original_url'] : '';
 
                 // Extract all side images from 'original_url' in 'media'
-                List<String> sideImages = mediaList
-                    .map((media) => media['original_url'].toString())
-                    .toList();
+                List<String> sideImages = mediaList.map((media) => media['original_url'].toString()).toList();
                 if (sideImages.isEmpty) {
                   sideImages.add("https://spabooking.pro/assets/no-image-18732f44.png");
                 }
-                String stars = (salon['reviews'] != null &&
-                        salon['reviews']['average_rating'] != null)
-                    ? salon['reviews']['average_rating'].toString()
-                    : "0.0";
+                String stars = (salon['reviews'] != null && salon['reviews']['average_rating'] != null) ? salon['reviews']['average_rating'].toString() : "0.0";
 
                 // Convert salon data to PLaces2 format
                 return PLaces2(
@@ -172,8 +167,7 @@ class _HomePageState extends State<HomePage> {
 
   getRecommended() async {
     try {
-      final response =
-          await http.get(Uri.parse('$domain2/api/getRecommendedSalons'));
+      final response = await http.get(Uri.parse('$domain2/api/getRecommendedSalons'));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         Map<String, dynamic> data = json.decode(response.body);
@@ -185,19 +179,12 @@ class _HomePageState extends State<HomePage> {
               .map((salon) {
                 List<dynamic> mediaList = salon['media'] as List<dynamic>;
 
-                String mainImage =
-                    mediaList.isNotEmpty ? mediaList[0]['original_url'] : '';
+                String mainImage = mediaList.isNotEmpty ? mediaList[0]['original_url'] : '';
 
                 // Extract all side images from 'original_url' in 'media'
-                List<String> sideImages = mediaList
-                    .where((media) => media['original_url'] != null)
-                    .map((media) => media['original_url'].toString())
-                    .toList();
+                List<String> sideImages = mediaList.where((media) => media['original_url'] != null).map((media) => media['original_url'].toString()).toList();
 
-                String stars = (salon['reviews'] != null &&
-                        salon['reviews']['average_rating'] != null)
-                    ? salon['reviews']['average_rating'].toString()
-                    : "0.0";
+                String stars = (salon['reviews'] != null && salon['reviews']['average_rating'] != null) ? salon['reviews']['average_rating'].toString() : "0.0";
 
                 // Convert salon data to PLaces2 format
                 return PLaces2(
@@ -248,9 +235,7 @@ class _HomePageState extends State<HomePage> {
             return City(
               id: cityData['id'],
               name: cityData['name'],
-              image: cityData['image'] != null
-                  ? ("$domain2/storage/" + (cityData['image'].toString()))
-                  : "https://demofree.sirv.com/nope-not-here.jpg",
+              image: cityData['image'] != null ? ("$domain2/storage/" + (cityData['image'].toString())) : "https://demofree.sirv.com/nope-not-here.jpg",
             );
           }).toList();
           setState(() {
@@ -300,10 +285,7 @@ class _HomePageState extends State<HomePage> {
 
             if (mediaList != null) {
               // Filter out null original URLs and extract side images
-              List<String> sideImages = mediaList
-                  .where((media) => media['original_url'] != null)
-                  .map((media) => media['original_url'].toString())
-                  .toList();
+              List<String> sideImages = mediaList.where((media) => media['original_url'] != null).map((media) => media['original_url'].toString()).toList();
 
               service.sideImages = sideImages;
             } else {
@@ -350,14 +332,14 @@ class _HomePageState extends State<HomePage> {
 
           return latestPlaces;
         } else {
-          print('Error 2 : Invalid response structure');
+          logger.d('Error 2 : Invalid response structure');
         }
       } else {
-        print('Error mmm : ${response.statusCode} $categoryId');
-        print('Error mmm : ${response.body} ');
+        logger.d('Error mmm : ${response.statusCode} $categoryId');
+        logger.d('Error mmm : ${response.body} ');
       }
     } catch (error) {
-      print('Error: $error');
+      logger.d('Error: $error');
       // Throw an exception or handle the error appropriately
     }
     setState(() {});
@@ -375,9 +357,7 @@ class _HomePageState extends State<HomePage> {
           List<dynamic> categoryList = data['categories'];
 
           for (var category in categoryList) {
-            String iconUrl = category['media'].isNotEmpty
-                ? ("$domain2/storage/" + category['media'][0]['original_url'])
-                : 'Default Icon URL';
+            String iconUrl = category['media'].isNotEmpty ? ("$domain2/storage/" + category['media'][0]['original_url']) : 'Default Icon URL';
 
             Map<String, dynamic> categoryOption = {
               'id': category['id'],
@@ -432,8 +412,7 @@ class _HomePageState extends State<HomePage> {
             [];
 
         // Find the category in updatedOptions and update its 'services' field
-        int index = updatedOptions
-            .indexWhere((element) => element['id'] == categoryOption['id']);
+        int index = updatedOptions.indexWhere((element) => element['id'] == categoryOption['id']);
         if (index != -1) {
           updatedOptions[index]['services'] = servicesJson;
           setState(() {
@@ -441,7 +420,7 @@ class _HomePageState extends State<HomePage> {
           });
         }
       } catch (error) {
-        print('Error fetching services for category: $error');
+        logger.e('Error fetching services for category: $error');
       }
     }
     setState(() {});
@@ -449,9 +428,8 @@ class _HomePageState extends State<HomePage> {
 
   void printFormattedJson(String jsonString) {
     final parsedJson = jsonDecode(jsonString);
-    final formattedJsonString =
-        JsonEncoder.withIndent('  ').convert(parsedJson);
-    print(formattedJsonString);
+    final formattedJsonString = const JsonEncoder.withIndent('  ').convert(parsedJson);
+    // logger.d(formattedJsonString);
   }
 
   void fetchData() async {
@@ -459,33 +437,29 @@ class _HomePageState extends State<HomePage> {
       final response = await http.get(
         Uri.parse('$domain2/api/getServices'),
       );
-      print("//////////////////////////");
-      print(response.body);
-      print("//////////////////////////");
+
+      logger.d(response.body);
+
       printFormattedJson(response.body);
-      print("//////////////////////////");
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         Map<String, dynamic> responseMap = json.decode(response.body);
         List<dynamic> services = responseMap['services'];
 
-        List<Map<String, dynamic>> servicesJson =
-            List<Map<String, dynamic>>.from(services.map((service) {
+        List<Map<String, dynamic>> servicesJson = List<Map<String, dynamic>>.from(services.map((service) {
           List<String> sideImages = [];
           if (service['media'] != null) {
             sideImages = List<String>.from(service['media'].map((image) {
               return image['original_url'];
             }));
           }
-          List<Map<String, dynamic>> categories =
-              List<Map<String, dynamic>>.from(
-                  service['service_categories'].map((category) {
+          List<Map<String, dynamic>> categories = List<Map<String, dynamic>>.from(service['service_categories'].map((category) {
             String categoryId = category['category']['id'].toString();
             String categoryName = category['category']['name'];
 
             // Check if 'media' is not empty before accessing the URL
             String iconUrl = '';
-            if (category['category']['media'] != null &&
-                category['category']['media'].isNotEmpty) {
+            if (category['category']['media'] != null && category['category']['media'].isNotEmpty) {
               iconUrl = category['category']['media'][0]['original_url'];
             }
 
@@ -514,8 +488,7 @@ class _HomePageState extends State<HomePage> {
 
         servicesJson.forEach((service) {
           service['categories'].forEach((category) {
-            String categoryId =
-                category['categoryId'].toString(); // Convert to string
+            String categoryId = category['categoryId'].toString(); // Convert to string
             if (!categoryMap.containsKey(categoryId)) {
               categoryMap[categoryId] = {
                 'id': categoryId,
@@ -695,7 +668,7 @@ class _HomePageState extends State<HomePage> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8.0),
                             border: Border.all(
-                              color: Color(0xFFD91A5B), // Set border color
+                              color: const Color(0xFFD91A5B), // Set border color
                               width: 1.0, // Set border width
                             ),
                           ),
@@ -712,11 +685,9 @@ class _HomePageState extends State<HomePage> {
                               hintStyle: TextStyle(
                                 color: Colors.black.withOpacity(0.6),
                               ),
-                              prefixIcon: const Icon(Icons.search,
-                                  color: Color(0xFFD91A5B)),
+                              prefixIcon: const Icon(Icons.search, color: Color(0xFFD91A5B)),
                               suffixIcon: IconButton(
-                                icon: const Icon(Icons.clear,
-                                    color: Color(0xFFD91A5B)),
+                                icon: const Icon(Icons.clear, color: Color(0xFFD91A5B)),
                                 onPressed: () {
                                   setState(() {
                                     _controllertext.clear();
@@ -724,17 +695,14 @@ class _HomePageState extends State<HomePage> {
                                 },
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                    color: Colors.white, width: 2.0),
+                                borderSide: const BorderSide(color: Colors.white, width: 2.0),
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                    color: Colors.white, width: 1.0),
+                                borderSide: const BorderSide(color: Colors.white, width: 1.0),
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
                             ),
                             onChanged: (value) {
                               // Add your search logic here
@@ -748,8 +716,7 @@ class _HomePageState extends State<HomePage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => SearchQueries(
-                                        Text: removeLastSpace(
-                                            _controllertext.text),
+                                        Text: removeLastSpace(_controllertext.text),
                                       )),
                             );
                           },
@@ -764,28 +731,23 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 10),
                     Container(
-                      padding: EdgeInsets.only(left: 12),
+                      padding: const EdgeInsets.only(left: 12),
                       height: 40,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: List.generate(
                           options.length,
                           (index) => Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: ChoiceChip(
                               label: Text(
                                 options[index]['label'],
                                 style: TextStyle(
-                                  color: !selectedOptions
-                                          .contains(options[index]['label'])
-                                      ? Colors.black
-                                      : Colors.white,
+                                  color: !selectedOptions.contains(options[index]['label']) ? Colors.black : Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              selected: selectedOptions
-                                  .contains(options[index]['label']),
+                              selected: selectedOptions.contains(options[index]['label']),
                               onSelected: (bool selected) {
                                 setState(() {
                                   Navigator.push(
@@ -801,30 +763,18 @@ class _HomePageState extends State<HomePage> {
                               },
                               avatar: CircleAvatar(
                                 radius: 20.0,
-                                backgroundColor: !selectedOptions
-                                        .contains(options[index]['label'])
-                                    ? Colors.transparent
-                                    : Colors.transparent,
+                                backgroundColor: !selectedOptions.contains(options[index]['label']) ? Colors.transparent : Colors.transparent,
                                 child: FractionallySizedBox(
                                   widthFactor: 0.7,
                                   heightFactor: 0.7,
                                   child: Image.network(
                                     options[index]['icon'],
-                                    color: selectedOptions
-                                            .contains(options[index]['label'])
-                                        ? Colors.white
-                                        : Colors.pink,
+                                    color: selectedOptions.contains(options[index]['label']) ? Colors.white : Colors.pink,
                                   ),
                                 ),
                               ),
-                              elevation: !selectedOptions
-                                      .contains(options[index]['label'])
-                                  ? 4.0
-                                  : 0.0,
-                              backgroundColor: selectedOptions
-                                      .contains(options[index]['label'])
-                                  ? const Color(0xFFD91A5B)
-                                  : Colors.white,
+                              elevation: !selectedOptions.contains(options[index]['label']) ? 4.0 : 0.0,
+                              backgroundColor: selectedOptions.contains(options[index]['label']) ? const Color(0xFFD91A5B) : Colors.white,
                               selectedColor: const Color(0xFFD91A5B),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -872,8 +822,7 @@ class _HomePageState extends State<HomePage> {
                   margin: EdgeInsets.symmetric(horizontal: size.width * 0.05),
                   child: Column(
                     children: options.map((option) {
-                      List<PLaces2> services =
-                          (option['services'] as List<dynamic>).map((service) {
+                      List<PLaces2> services = (option['services'] as List<dynamic>).map((service) {
                         double price = (service['price'] is String)
                             ? double.parse(service['price'])
                             : (service['price'] is int)
@@ -904,35 +853,34 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              Divider(
+              const Divider(
                 thickness: 1,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Container(
-                margin: EdgeInsets.only(left: 10.0),
-                child: Text(
+                margin: const EdgeInsets.only(left: 10.0),
+                child: const Text(
                   'Explorer avec les villes',
                   style: TextStyle(
                     color: Color(0xFFD91A5B),
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
-                    fontFamily:
-                        'YourCustomFont', // Replace with your custom font
+                    fontFamily: 'YourCustomFont', // Replace with your custom font
                   ),
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
               Container(
                 height: 120.0,
-                padding: EdgeInsets.fromLTRB(16.0, 5.0, 5.0, 5.0),
+                padding: const EdgeInsets.fromLTRB(16.0, 5.0, 5.0, 5.0),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: Allcities.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                        padding: EdgeInsets.only(right: 8.0),
+                        padding: const EdgeInsets.only(right: 8.0),
                         child: Container(
                           width: 150,
                           child: CityCart(city: Allcities[index]),
@@ -1038,7 +986,7 @@ class _HomePageState extends State<HomePage> {
         child: Row(
           //   mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 30,
             ),
             SizedBox(
@@ -1050,7 +998,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 10),
                   Text(
                     titles[index],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -1069,16 +1017,15 @@ class _HomePageState extends State<HomePage> {
                       String url = links[index];
                       print(url);
                       try {
-                        await launchUrl(Uri.parse(url),
-                            mode: LaunchMode.externalApplication);
+                        await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
                       } catch (e) {
                         throw 'Could not launch $url';
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      // primary: const Color(0xFFD91A5B),
-                      // onPrimary: Colors.white,
-                    ),
+                        // primary: const Color(0xFFD91A5B),
+                        // onPrimary: Colors.white,
+                        ),
                     child: Text(buttons[index]),
                   ),
                 ],

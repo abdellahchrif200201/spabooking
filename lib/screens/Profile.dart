@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +12,7 @@ import 'package:spa/screens/login_view.dart';
 import 'package:spa/screens/search_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:spa/constents.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -25,16 +29,16 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isEditingName = false;
   bool _isEditingEmail = false;
   bool _isEditingPhone = false;
+  String image = '';
   // final bool _isEditingPassword = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Future<void> _fetchAndStoreBookingDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _emailController.text = prefs.getString('email') ?? '';
     _nameController.text = prefs.getString('name') ?? '';
-    _phoneController.text = prefs.getString('phone').toString() == 'null'
-        ? ''
-        : prefs.getString('phone').toString();
+    _phoneController.text = prefs.getString('phone').toString() == 'null' ? '' : prefs.getString('phone').toString();
     _controller.text = prefs.getString('password') ?? '';
+    image = prefs.getString('image') ?? '';
     setState(() {});
   }
 
@@ -75,6 +79,18 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String translate(String key, Map<String, String> translationMap) {
     return translationMap[key] ?? key;
+  }
+
+  File? _image;
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
   }
 
   @override
@@ -125,23 +141,39 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.pink, // Set the background color to pink
-                      ),
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: const Color(0xFFD91A5B),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'Assets/png-clipart-man-wearing-blue-shirt-illustration-computer-icons-avatar-user-login-avatar-blue-child.png',
-                            width: 100, // Adjust the width as needed
-                            height: 100, // Adjust the height as needed
-                            fit: BoxFit
-                                .cover, // Ensure the image covers the entire CircleAvatar
+                    GestureDetector(
+                      onTap: _pickImage, // Trigger image picker when the CircleAvatar is tapped
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.pink,
+                        ),
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundColor: const Color(0xFFD91A5B),
+                          child: ClipOval(
+                            child: _image != null
+                                ? Image.file(
+                                    _image!,
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  )
+                                : image.isNotEmpty
+                                    ? Image.network(
+                                        image,
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        'Assets/png-clipart-man-wearing-blue-shirt-illustration-computer-icons-avatar-user-login-avatar-blue-child.png',
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
                           ),
                         ),
                       ),
@@ -190,9 +222,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             readOnly: !_isEditing,
                             decoration: InputDecoration(
                               suffixIcon: IconButton(
-                                icon: Icon(visible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off),
+                                icon: Icon(visible ? Icons.visibility : Icons.visibility_off),
                                 onPressed: () {
                                   setState(() {
                                     visible = !visible;
@@ -203,9 +233,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               contentPadding: const EdgeInsets.all(16),
-                              errorText: ((_controller.text.length < 6))
-                                  ? 'Password should be at least 6 characters'
-                                  : null,
+                              errorText: ((_controller.text.length < 6)) ? 'Password should be at least 6 characters' : null,
                             ),
                           ),
                         ),
@@ -229,14 +257,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 32),
                     _buildStyledButton(
                         selectedLanguage == "English"
-                            ? translate(
-                                'Enregistrer les modifications', signup_english)
+                            ? translate('Enregistrer les modifications', signup_english)
                             : selectedLanguage == "Arabic"
-                                ? translate('Enregistrer les modifications',
-                                    signup_arabic)
-                                : 'Enregistrer les modifications',
-                        onPressed: () {
-                      save_changes();
+                                ? translate('Enregistrer les modifications', signup_arabic)
+                                : 'Enregistrer les modifications', onPressed: () {
+                      saveChanges();
                     }),
                     SizedBox(
                       height: 20,
@@ -248,29 +273,23 @@ class _ProfilePageState extends State<ProfilePage> {
                           builder: (BuildContext context) {
                             return AlertDialog(
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    20.0), // Add border radius
+                                borderRadius: BorderRadius.circular(20.0), // Add border radius
                               ),
                               content: Container(
                                   height: 85,
                                   child: Column(
                                     children: [
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.delete,
-                                              color: Colors.red,
-                                              size: 25), // Add delete icon
+                                          Icon(Icons.delete, color: Colors.red, size: 25), // Add delete icon
                                           SizedBox(width: 8),
                                           Text(
                                             "Supprimer le compte",
                                             style: TextStyle(
                                               color: Colors.black,
-                                              fontWeight: FontWeight
-                                                  .bold, // Make the text bold
-                                              fontSize:
-                                                  18, // Increase font size
+                                              fontWeight: FontWeight.bold, // Make the text bold
+                                              fontSize: 18, // Increase font size
                                             ),
                                           ),
                                         ],
@@ -284,16 +303,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                   )),
                               actions: [
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.of(context)
-                                            .pop(); // Close the dialog
+                                        Navigator.of(context).pop(); // Close the dialog
                                       },
-                                      child: Text('Annuler',
-                                          style: TextStyle(color: Colors.grey)),
+                                      child: Text('Annuler', style: TextStyle(color: Colors.grey)),
                                     ),
                                     ElevatedButton(
                                       onPressed: () async {
@@ -301,14 +317,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                       },
                                       child: Text('Supprimer'),
                                       style: ElevatedButton.styleFrom(
-                                        // primary: const Color.fromARGB(
-                                        //     255,
-                                        //     171,
-                                        //     27,
-                                        //     16), // Change confirm button color to red
-                                        // onPrimary: Colors
-                                        //     .white, // Change text color to white
-                                      ),
+                                          // primary: const Color.fromARGB(
+                                          //     255,
+                                          //     171,
+                                          //     27,
+                                          //     16), // Change confirm button color to red
+                                          // onPrimary: Colors
+                                          //     .white, // Change text color to white
+                                          ),
                                     ),
                                   ],
                                 )
@@ -334,11 +350,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildEditableTextField(
-      String label, String labelText, TextEditingController controller,
-      {String? initialValue,
-      bool obscureText = false,
-      required bool isEditing}) {
+  Widget _buildEditableTextField(String label, String labelText, TextEditingController controller, {String? initialValue, bool obscureText = false, required bool isEditing}) {
     String? errorText;
     switch (label) {
       case 'Name':
@@ -351,8 +363,7 @@ class _ProfilePageState extends State<ProfilePage> {
         break;
       case 'Phone Number':
         if ((_phoneController.text.length < 9)) {
-          errorText =
-              'Numéro de téléphone invalide (doit contenir 10 chiffres)';
+          errorText = 'Numéro de téléphone invalide (doit contenir 10 chiffres)';
         }
         break;
       // Add other cases as needed
@@ -361,8 +372,7 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Expanded(
           child: TextFormField(
-            keyboardType:
-                labelText == 'Phone Number' ? TextInputType.phone : null,
+            keyboardType: labelText == 'Phone Number' ? TextInputType.phone : null,
             controller: controller,
             readOnly: !isEditing,
             obscureText: obscureText,
@@ -461,56 +471,132 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> save_changes() async {
-    if (_nameController.text.length > 5 && _phoneController.text.length > 8) {
+  Future<void> saveChanges() async {
+    if (_validateFields()) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? localId = prefs.getString('id').toString();
-      String? oldName = prefs.getString('name').toString();
-      String? oldPhone = prefs.getString('phone').toString();
-      String? oldPassword = prefs.getString('password').toString();
-      String? authToken = "Bearer " + prefs.getString('authToken').toString();
+      String? localId = prefs.getString('id');
+      String? oldName = prefs.getString('name');
+      String? oldPhone = prefs.getString('phone');
+      String? oldPassword = prefs.getString('password');
+      String? authToken = prefs.getString('authToken');
+      // String? image = prefs.getString("image");
+
+      if (authToken == null || localId == null) {
+        logger.e('Authentication token or user ID not found');
+        return;
+      }
+
+      authToken = "Bearer $authToken";
       String? newName = _nameController.text;
       String? newPhone = _phoneController.text;
       String? newPassword = _controller.text;
 
-      Map<String, String> headers = {"user_id": localId};
+      logger.d(authToken);
+
+      // Creating the request body
+      Map<String, String> fieldsToUpdate = {"user_id": localId};
 
       if (oldName != newName) {
-        headers["name"] = newName.toString();
+        fieldsToUpdate["name"] = newName;
       }
 
       if (oldPhone != newPhone) {
-        headers["phone"] = newPhone.toString();
+        fieldsToUpdate["phone"] = newPhone;
       }
 
       if (oldPassword != newPassword) {
-        headers["password"] = newPassword.toString();
+        fieldsToUpdate["password"] = newPassword;
       }
 
-      print(headers);
-      if (headers.length > 1) {
+      logger.d(fieldsToUpdate);
+
+      if (fieldsToUpdate.length > 1 || _image != null) {
         try {
-          final response = await http.post(
+          var requestBody = fieldsToUpdate;
+
+          // Convert the image to Base64 and add it to the request body if present
+          if (_image != null) {
+            logger.d("Image found");
+            List<int> imageBytes = await _image!.readAsBytes();
+            String base64Image = base64Encode(imageBytes);
+            requestBody['image'] = base64Image;
+          }
+
+          // Make the POST request
+          var response = await http.post(
             Uri.parse('$domain2/api/auth/editProfil'),
-            body: headers,
-            headers: {'Authorization': authToken},
+            headers: {
+              'Authorization': authToken,
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode(requestBody),
           );
 
+          // Handle the response
           if (response.statusCode == 200 || response.statusCode == 201) {
-            // API call was successful, handle the response if needed
-            print("API call successful");
+            logger.d("API call successful");
+            logger.d("Response body: ${response.body}");
+
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+
+            // prefs.setString('authToken', tokenFromResponse);
+           
+           
+            // prefs.setString('image', image);
+
+            if (oldName != newName) {
+              prefs.setString('name', newName);
+            }
+
+            if (oldPhone != newPhone) {
+              prefs.setString('phone', newPhone);
+            }
+
+            if (oldPassword != newPassword) {
+              prefs.setString('password', newPassword);
+            }
+
+            ElegantNotification.success(
+              animationDuration: const Duration(milliseconds: 600),
+              width: 360,
+              position: Alignment.bottomCenter,
+              animation: AnimationType.fromBottom,
+              title: const Text('succès'),
+              description: const Text('Profil mis à jour avec succès'),
+            ).show(context);
           } else {
-            // API call failed, handle the error
-            print(
-                "API call failed with status code  ${response.statusCode} : ${response.body}");
+            logger.e("API call failed with status code ${response.statusCode}");
+            logger.e("Response body: ${response.body}");
+            ElegantNotification.error(
+              animationDuration: const Duration(milliseconds: 600),
+              width: 360,
+              position: Alignment.bottomCenter,
+              animation: AnimationType.fromBottom,
+              title: const Text('Error'),
+              description: Text('Failed to save changes: ${response.body}'),
+            ).show(context);
           }
         } catch (e) {
-          // Handle exceptions or network errors
-          print("Error during API call: $e");
+          logger.e("Error during API call: $e");
+          ElegantNotification.error(
+            animationDuration: const Duration(milliseconds: 600),
+            width: 360,
+            position: Alignment.bottomCenter,
+            animation: AnimationType.fromBottom,
+            title: const Text('Error'),
+            description: const Text('Failed to save changes'),
+          ).show(context);
         }
       } else {
-        // No changes, do something (e.g., show a message)
-        print("No changes to save");
+        logger.d("No changes to save");
+        ElegantNotification.info(
+          animationDuration: const Duration(milliseconds: 600),
+          width: 360,
+          position: Alignment.bottomCenter,
+          animation: AnimationType.fromBottom,
+          title: const Text('Info'),
+          description: const Text('No changes detected to save'),
+        ).show(context);
       }
     } else {
       ElegantNotification.error(
@@ -519,10 +605,14 @@ class _ProfilePageState extends State<ProfilePage> {
         position: Alignment.bottomCenter,
         animation: AnimationType.fromBottom,
         title: const Text('Error'),
-        description: const Text('verify feilds codition'),
+        description: const Text('Verify fields condition'),
         onDismiss: () {},
       ).show(context);
     }
+  }
+
+  bool _validateFields() {
+    return _nameController.text.length > 5 && _phoneController.text.length > 8;
   }
 
   deleteProfile() async {
@@ -531,14 +621,14 @@ class _ProfilePageState extends State<ProfilePage> {
     // If the token exists, make the API request
     if (authToken != null) {
       try {
-        print(authToken);
+        logger.d(authToken);
 
         final response = await http.post(
           Uri.parse('$domain2/api/deleteAccountUser'),
           headers: {'Authorization': authToken},
         );
-        print(response.statusCode);
-        print(response.body);
+        logger.d(response.statusCode);
+        logger.d(response.body);
         if (response.statusCode == 200 || response.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -587,7 +677,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } else {
-      print('Error: Auth token not found');
+      logger.d('Error: Auth token not found');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

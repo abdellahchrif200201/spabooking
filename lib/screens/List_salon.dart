@@ -8,6 +8,7 @@ import 'package:spa/page_transltion/drawer_tr.dart';
 import 'package:spa/page_transltion/home_tr.dart';
 import 'package:spa/screens/Details_salon.dart';
 import 'package:spa/screens/home_page.dart';
+import 'package:spa/screens/login_view.dart';
 import 'package:spa/screens/salon_list_favoris.dart';
 import 'package:spa/screens/search_map.dart';
 import 'package:http/http.dart' as http;
@@ -25,63 +26,163 @@ class _ListSalonState extends State<ListSalon> {
   List<PLaces3> placeses = [];
   List<PLaces3> placeses_filtred = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  // Future<void> _fetchAndStoreServiceDetails() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? id = prefs.getString('id');
+  //   Map<String, dynamic> requestBody = {"client_id": id, "type": "salon"};
+
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('$domain2/api/getAllFavoriteByCilent'),
+  //       body: jsonEncode(requestBody),
+  //       headers: {"Content-Type": "application/json"},
+  //     );
+
+  //     if (response.statusCode == 201) {
+  //       final Map<String, dynamic> data = json.decode(response.body);
+
+  //       if (data['favorite'] != null) {
+  //         List<dynamic> salons = data['favorite'];
+
+  //         List<PLaces3> latestPlaces = [];
+  //         for (var salon in salons) {
+  //           try {
+  //             var salonResponse = await http.get(
+  //               Uri.parse('$domain2/api/getSalonById/${salon['salon']['id']}'),
+  //             );
+
+  //             if (salonResponse.statusCode == 200 ||
+  //                 salonResponse.statusCode == 201) {
+  //               final Map<String, dynamic> salonData =
+  //                   json.decode(salonResponse.body);
+
+  //               // Check if 'media' is present and not empty
+  //               // List<dynamic> mediaList = [];
+  //               String mainImage =
+  //                   "$domain2/storage/" + salonData['salon']['logo'].toString();
+
+  //               // Extract all side images from 'original_url' in 'media'
+  //               List<String> sideImages = salonData['salon']['media']
+  //                   .map<String>((media) => media['original_url'].toString())
+  //                   .toList();
+  //               logger.d(salonData['salon']['reviews']['average_rating']);
+  //               String stars = (salonData['salon']['reviews'] != null &&
+  //                       salonData['salon']['reviews']['average_rating'] != null)
+  //                   ? salonData['salon']['reviews']['average_rating'].toString()
+  //                   : "0.0";
+
+  //               logger.d("Name: ${salonData['name']}");
+  //               logger.d("ID: ${salonData['id']}");
+  //               logger.d("Main Image: $mainImage");
+  //               logger.d("Side Images: $sideImages");
+  //               logger.d("Location: ${salonData['city']}");
+  //               logger.d("Stars: $stars");
+  //               logger.d("Type: ${salonData['genre']}");
+
+  //               latestPlaces.add(
+  //                 PLaces3(
+  //                   name: salonData['salon']['name'].toString(),
+  //                   id: salonData['salon']['id'],
+  //                   mainImage: mainImage.toString(),
+  //                   sideImages: sideImages,
+  //                   location: salonData['salon']['city'].toString(),
+  //                   stars: double.parse(stars),
+  //                   type: salonData['salon']['genre'].toString(),
+  //                   is_opend: true,
+  //                 ),
+  //               );
+  //               setState(() {
+  //                 placeses_filtred = latestPlaces;
+  //                 placeses = latestPlaces;
+  //                 loading = false;
+  //               });
+  //             } else {
+  //               print("Failed to fetch salon by ss ID ${salon['id']}");
+  //               print(salonResponse.body);
+  //             }
+  //           } catch (error) {
+  //             print(
+  //                 "Error during salon by ss ID ${salon['id']} API call: $error");
+  //           }
+  //         }
+
+  //         setState(() {
+  //           placeses_filtred = latestPlaces;
+  //           placeses = latestPlaces;
+  //         });
+
+  //         // Optionally, you can print or use the latest placeses
+  //         print('Latest placeses: ${placeses.length}');
+  //       } else {
+  //         print('Error: Invalid response structure');
+  //       }
+  //     } else {
+  //       print('Error: ${response.body}');
+  //     }
+  //   } catch (error) {
+  //     print('Error: $error');
+  //   }
+  //   setState(() {
+  //     loading = false;
+  //   });
+  // }
+
   Future<void> _fetchAndStoreServiceDetails() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? id = prefs.getString('id');
-    Map<String, dynamic> requestBody = {"client_id": id, "type": "salon"};
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? id = prefs.getString('id');
+  String? favoriteSalonIds = prefs.getString('favoriteSalonIds'); // Retrieve favorite salon IDs
 
-    try {
-      final response = await http.post(
-        Uri.parse('$domain2/api/getAllFavoriteByCilent'),
-        body: jsonEncode(requestBody),
-        headers: {"Content-Type": "application/json"},
-      );
+  List<String> favoriteIds = [];
+  if (favoriteSalonIds != null) {
+    favoriteIds = favoriteSalonIds.split(',');
+  }
 
-      if (response.statusCode == 201) {
-        final Map<String, dynamic> data = json.decode(response.body);
+  Map<String, dynamic> requestBody = {"client_id": id, "type": "salon"};
 
-        if (data['favorite'] != null) {
-          List<dynamic> salons = data['favorite'];
+  try {
+    final response = await http.post(
+      Uri.parse('$domain2/api/getAllFavoriteByCilent'),
+      body: jsonEncode(requestBody),
+      headers: {"Content-Type": "application/json"},
+    );
 
-          List<PLaces3> latestPlaces = [];
-          for (var salon in salons) {
-            try {
-              var salonResponse = await http.get(
-                Uri.parse('$domain2/api/getSalonById/${salon['salon']['id']}'),
-              );
+    if (response.statusCode == 201) {
+      final Map<String, dynamic> data = json.decode(response.body);
 
-              if (salonResponse.statusCode == 200 ||
-                  salonResponse.statusCode == 201) {
-                final Map<String, dynamic> salonData =
-                    json.decode(salonResponse.body);
+      if (data['favorite'] != null) {
+        List<dynamic> salons = data['favorite'];
 
-                // Check if 'media' is present and not empty
-                // List<dynamic> mediaList = [];
-                String mainImage =
-                    "$domain2/storage/" + salonData['salon']['logo'].toString();
+        List<PLaces3> latestPlaces = [];
+        Set<String> processedIds = {}; // Set to track processed salon IDs
 
-                // Extract all side images from 'original_url' in 'media'
-                List<String> sideImages = salonData['salon']['media']
-                    .map<String>((media) => media['original_url'].toString())
-                    .toList();
-                print(salonData['salon']['reviews']['average_rating']);
-                String stars = (salonData['salon']['reviews'] != null &&
-                        salonData['salon']['reviews']['average_rating'] != null)
-                    ? salonData['salon']['reviews']['average_rating'].toString()
-                    : "0.0";
+        for (var salon in salons) {
+          try {
+            var salonResponse = await http.get(
+              Uri.parse('$domain2/api/getSalonById/${salon['salon']['id']}'),
+            );
 
-                print("Name: ${salonData['name']}");
-                print("ID: ${salonData['id']}");
-                print("Main Image: $mainImage");
-                print("Side Images: $sideImages");
-                print("Location: ${salonData['city']}");
-                print("Stars: $stars");
-                print("Type: ${salonData['genre']}");
+            if (salonResponse.statusCode == 200 || salonResponse.statusCode == 201) {
+              final Map<String, dynamic> salonData = json.decode(salonResponse.body);
 
+              String salonId = salonData['salon']['id'].toString();
+              if (processedIds.contains(salonId)) {
+                continue; // Skip if already processed
+              }
+
+              String mainImage = "$domain2/storage/" + salonData['salon']['logo'].toString();
+              List<String> sideImages = salonData['salon']['media']
+                  .map<String>((media) => media['original_url'].toString())
+                  .toList();
+              String stars = (salonData['salon']['reviews'] != null &&
+                      salonData['salon']['reviews']['average_rating'] != null)
+                  ? salonData['salon']['reviews']['average_rating'].toString()
+                  : "0.0";
+
+              if (favoriteIds.contains(salonId)) {
                 latestPlaces.add(
                   PLaces3(
                     name: salonData['salon']['name'].toString(),
-                    id: salonData['salon']['id'],
+                    id: int.parse(salonId),
                     mainImage: mainImage.toString(),
                     sideImages: sideImages,
                     location: salonData['salon']['city'].toString(),
@@ -90,41 +191,47 @@ class _ListSalonState extends State<ListSalon> {
                     is_opend: true,
                   ),
                 );
-                setState(() {
-                  placeses_filtred = latestPlaces;
-                  placeses = latestPlaces;
-                  loading = false;
-                });
-              } else {
-                print("Failed to fetch salon by ss ID ${salon['id']}");
-                print(salonResponse.body);
+                processedIds.add(salonId); // Mark this ID as processed
               }
-            } catch (error) {
-              print(
-                  "Error during salon by ss ID ${salon['id']} API call: $error");
+
+              logger.d("Name: ${salonData['name']}");
+              logger.d("ID: ${salonData['id']}");
+              logger.d("Main Image: $mainImage");
+              logger.d("Side Images: $sideImages");
+              logger.d("Location: ${salonData['city']}");
+              logger.d("Stars: $stars");
+              logger.d("Type: ${salonData['genre']}");
+            } else {
+              print("Failed to fetch salon by ID ${salon['salon']['id']}");
+              print(salonResponse.body);
             }
+          } catch (error) {
+            print("Error during salon by ID ${salon['salon']['id']} API call: $error");
           }
-
-          setState(() {
-            placeses_filtred = latestPlaces;
-            placeses = latestPlaces;
-          });
-
-          // Optionally, you can print or use the latest placeses
-          print('Latest placeses: ${placeses.length}');
-        } else {
-          print('Error: Invalid response structure');
         }
+
+        setState(() {
+          placeses_filtred = latestPlaces;
+          placeses = latestPlaces;
+          loading = false;
+        });
+
+        // Optionally, you can print or use the latest placeses
+        print('Latest placeses: ${placeses.length}');
       } else {
-        print('Error: ${response.body}');
+        print('Error: Invalid response structure');
       }
-    } catch (error) {
-      print('Error: $error');
+    } else {
+      print('Error: ${response.body}');
     }
-    setState(() {
-      loading = false;
-    });
+  } catch (error) {
+    print('Error: $error');
   }
+  setState(() {
+    loading = false;
+  });
+}
+
 
   @override
   void initState() {
@@ -234,7 +341,7 @@ class _ListSalonState extends State<ListSalon> {
                                     size: 48,
                                     color: Color(0xFFD91A5B).withOpacity(0.8),
                                   ),
-                                  SizedBox(height: 16),
+                                 const  SizedBox(height: 16),
                                   Text(
                                     selectedLanguage == "English"
                                         ? translate('Aucun salon disponible',
@@ -244,7 +351,7 @@ class _ListSalonState extends State<ListSalon> {
                                                 'Aucun salon disponible',
                                                 home_Arabic)
                                             : 'Aucun salon disponible',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       color: Color(0xFFD91A5B),
                                     ),
@@ -255,7 +362,7 @@ class _ListSalonState extends State<ListSalon> {
                           )
                         : GridView.builder(
                             gridDelegate:
-                                SliverGridDelegateWithMaxCrossAxisExtent(
+                               const SliverGridDelegateWithMaxCrossAxisExtent(
                               childAspectRatio: 2 / 3,
                               maxCrossAxisExtent: 200,
                               crossAxisSpacing: 16,

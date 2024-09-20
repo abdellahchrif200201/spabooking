@@ -31,6 +31,7 @@ class SalonDetails extends StatefulWidget {
 class _SalonDetailsState extends State<SalonDetails> {
   List<Review> reviews = [];
   bool isStarred = false;
+  bool isFavorite = false;
   SwiperController swiperController = SwiperController();
   Timer? timer;
   int currentIndex = 0;
@@ -53,10 +54,60 @@ class _SalonDetailsState extends State<SalonDetails> {
 
   String selectedSection = 'Details';
   List<Service2> yourServiceList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    checkIfFavorited();
+    logger.d("salon ID = " + widget.id.toString());
+    _loadLanguage();
+
+    _fetchAndStoreServiceDetails();
+    startAutoSlide();
+  }
+
+  // Function to check if the salon is already favorited
+  Future<void> checkIfFavorited() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? salonIds = prefs.getString('favoriteSalonIds');
+
+    if (salonIds != null) {
+      List<String> idsList = salonIds.split(',');
+      if (idsList.contains(widget.id)) {
+        setState(() {
+          isFavorite = true; // Set isStarred to true if the ID is found
+        });
+      }
+    }
+  }
+
+  // Function to store the salon ID as favorite
+  Future<void> storeFavoriteInStorage(String salonId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? salonIds = prefs.getString('favoriteSalonIds');
+    List<String> idsList = salonIds != null ? salonIds.split(',') : [];
+
+    if (!idsList.contains(salonId)) {
+      idsList.add(salonId);
+      await prefs.setString('favoriteSalonIds', idsList.join(','));
+    }
+  }
+
+  // Function to remove the salon ID from favorites
+  Future<void> removeFavorite(String salonId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? salonIds = prefs.getString('favoriteSalonIds');
+
+    if (salonIds != null) {
+      List<String> idsList = salonIds.split(',');
+      idsList.remove(salonId);
+      await prefs.setString('favoriteSalonIds', idsList.join(','));
+    }
+  }
+
   Future<void> _fetchAndStoreServiceDetails() async {
     try {
-      final response =
-          await http.post(Uri.parse('$domain2/api/getSalonsFromMaps'));
+      final response = await http.post(Uri.parse('$domain2/api/getSalonsFromMaps'));
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> data = json.decode(response.body);
@@ -67,7 +118,7 @@ class _SalonDetailsState extends State<SalonDetails> {
           Map<String, dynamic>? targetSalon;
 
           for (var salon in salonList) {
-            print(widget.id);
+            logger.d(widget.id);
             if (salon['id'].toString() == widget.id) {
               targetSalon = salon;
               break;
@@ -82,46 +133,41 @@ class _SalonDetailsState extends State<SalonDetails> {
               adress = targetSalon['address'];
               genre = targetSalon['genre'];
               description = extractPlainText(targetSalon['description']);
-              Tottal_review =
-                  targetSalon['reviews']["total_reviews"].toString();
-              avrage_review =
-                  targetSalon['reviews']["average_rating"].toString();
+              Tottal_review = targetSalon['reviews']["total_reviews"].toString();
+              avrage_review = targetSalon['reviews']["average_rating"].toString();
               phone = targetSalon['phone_number'];
-              availabilityData = List<Map<String, dynamic>>.from(
-                  targetSalon['disponibility'] ?? []);
+              availabilityData = List<Map<String, dynamic>>.from(targetSalon['disponibility'] ?? []);
               images = List<String>.from(targetSalon['media'].map((item) {
                 return item['original_url'];
               }));
               if (images.isEmpty) {
-                images
-                    .add("https://spabooking.pro/assets/no-image-18732f44.png");
+                images.add("https://spabooking.pro/assets/no-image-18732f44.png");
               }
               if (targetSalon['address_map'].toString() != 'null') {
-                final Map<String, dynamic> addressMap =
-                    json.decode(targetSalon['address_map']);
+                final Map<String, dynamic> addressMap = json.decode(targetSalon['address_map']);
 
                 latitude = double.parse(addressMap['lat']);
                 longitude = double.parse(addressMap['lon']);
               }
             });
-            print('Email: $email');
-            print('Address: $adress');
-            print('Phone: $phone');
-            print('Description: $description');
-            print('Latitude: $latitude');
-            print('Longitude: $longitude');
-            print('Images: $images');
+            logger.d('Email: $email');
+            logger.d('Address: $adress');
+            logger.d('Phone: $phone');
+            logger.d('Description: $description');
+            logger.d('Latitude: $latitude');
+            logger.d('Longitude: $longitude');
+            logger.d('Images: $images');
           } else {
-            print('Error: Salon with id = 1 not found');
+            logger.d('Error: Salon with id = 1 not found');
           }
         } else {
-          print('Error: Invalid response structure');
+          logger.d('Error: Invalid response structure');
         }
       } else {
-        print('Error: ${response.statusCode}');
+        logger.d('Error: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error: $error');
+      logger.d('Error: $error');
     }
 
     isSalonOpenNow();
@@ -140,19 +186,12 @@ class _SalonDetailsState extends State<SalonDetails> {
           List<Service2> latestServices = services.map((service) {
             List<dynamic> mediaList = service['media'] as List<dynamic>;
 
-            String mainImage =
-                mediaList.isNotEmpty ? mediaList[0]['original_url'] : '';
+            String mainImage = mediaList.isNotEmpty ? mediaList[0]['original_url'] : '';
 
-            List<String> sideImages = mediaList
-                .where((media) => media['original_url'] != null)
-                .map((media) => media['original_url'].toString())
-                .toList();
+            List<String> sideImages = mediaList.where((media) => media['original_url'] != null).map((media) => media['original_url'].toString()).toList();
 
-            String stars = (service['reviews'] != null &&
-                    service['reviews']['average_rating'] != null)
-                ? service['reviews']['average_rating'].toString()
-                : "0.0";
-            print(
+            String stars = (service['reviews'] != null && service['reviews']['average_rating'] != null) ? service['reviews']['average_rating'].toString() : "0.0";
+            logger.d(
               "salon id is : " + service['id'].toString(),
             );
             return Service2(
@@ -172,15 +211,15 @@ class _SalonDetailsState extends State<SalonDetails> {
             yourServiceList = latestServices;
           });
 
-          print('Latest services: $latestServices');
+          logger.d('Latest services: $latestServices');
         } else {
-          print('Error: Invalid response structure');
+          logger.d('Error: Invalid response structure');
         }
       } else {
-        print('Error: ${response.statusCode}');
+        logger.d('Error: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error: $error');
+      logger.d('Error: $error');
     }
     try {
       final response = await http.post(
@@ -191,11 +230,10 @@ class _SalonDetailsState extends State<SalonDetails> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         List<dynamic> revie = json.decode(response.body);
 
-        print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+        logger.d("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
         List<Review> storedReviews = revie.map((review) {
           return Review(
-            avatar:
-                "https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png",
+            avatar: "https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png",
             // Replace with the actual avatar field
             comment: review['review'],
             stars: int.parse(review['rate'].toString()),
@@ -207,23 +245,19 @@ class _SalonDetailsState extends State<SalonDetails> {
         setState(() {
           reviews = storedReviews;
         });
-        print('Stored Reviews: $storedReviews');
+        logger.d('Stored Reviews: $storedReviews');
       } else {
-        print('Error: ${response.statusCode}');
+        logger.d('Error: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error: $error');
+      logger.d('Error: $error');
     }
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? localId = prefs.getString('id').toString();
       final response = await http.post(
         Uri.parse('$domain2/api/getFavoriteByClientAndSalonId'),
-        body: {
-          "client_id": localId.toString(),
-          "type": "salon",
-          "salon_id": widget.id.toString()
-        },
+        body: {"client_id": localId.toString(), "type": "salon", "salon_id": widget.id.toString()},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -231,10 +265,10 @@ class _SalonDetailsState extends State<SalonDetails> {
           isStarred = true;
         });
       } else {
-        print('Error 9: ${response.statusCode}');
+        logger.d('Error 9: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error 8: $error');
+      logger.d('Error 8: $error');
     }
   }
 
@@ -242,15 +276,6 @@ class _SalonDetailsState extends State<SalonDetails> {
   String Services = 'Services';
   String Galerie = "Galerie";
   String Reviews = "Avis";
-  @override
-  void initState() {
-    super.initState();
-    print("salon ID = " + widget.id.toString());
-    _loadLanguage();
-
-    _fetchAndStoreServiceDetails();
-    startAutoSlide();
-  }
 
   @override
   void dispose() {
@@ -357,11 +382,9 @@ class _SalonDetailsState extends State<SalonDetails> {
                         ),
                         child: Text(
                           selectedLanguage == "English"
-                              ? translate(
-                                  'Liste des services', service_details_English)
+                              ? translate('Liste des services', service_details_English)
                               : selectedLanguage == "Arabic"
-                                  ? translate('Liste des services',
-                                      service_details_Arabic)
+                                  ? translate('Liste des services', service_details_Arabic)
                                   : 'Liste des services',
                           style: TextStyle(
                             color: Colors.white,
@@ -373,15 +396,13 @@ class _SalonDetailsState extends State<SalonDetails> {
                       width: MediaQuery.of(context).size.width * 0.45,
                       child: ElevatedButton(
                         onPressed: () async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
                           String? localId = prefs.getString('id');
                           if (localId != null) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    ChatPage(idsalon: widget.id, name: name),
+                                builder: (context) => ChatPage(idsalon: widget.id, name: name),
                               ),
                             );
                           } else {
@@ -393,8 +414,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15.0),
                                     side: BorderSide(
-                                      color: Color(
-                                          0xFFD91A5B), // Add border color here
+                                      color: Color(0xFFD91A5B), // Add border color here
                                     ),
                                   ),
                                   title: Text(
@@ -411,8 +431,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                                     children: [
                                       SizedBox(height: 20),
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: [
                                           ElevatedButton.icon(
                                             onPressed: () {
@@ -421,15 +440,12 @@ class _SalonDetailsState extends State<SalonDetails> {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      LoginView(comes: true),
+                                                  builder: (context) => LoginView(comes: true),
                                                 ),
                                               );
                                             },
-                                            icon: Icon(Icons
-                                                .login), // Add the login icon
-                                            label: Text(selectedLanguage ==
-                                                    "English"
+                                            icon: Icon(Icons.login), // Add the login icon
+                                            label: Text(selectedLanguage == "English"
                                                 ? "Sign In"
                                                 : selectedLanguage == "Arabic"
                                                     ? "تسجيل الدخول"
@@ -445,13 +461,11 @@ class _SalonDetailsState extends State<SalonDetails> {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      SignUpView(comes: true),
+                                                  builder: (context) => SignUpView(comes: true),
                                                 ),
                                               );
                                             },
-                                            icon: Icon(Icons
-                                                .person_add), // Add the sign-up icon
+                                            icon: Icon(Icons.person_add), // Add the sign-up icon
                                             label: Text(
                                               selectedLanguage == "English"
                                                   ? "Sign Up"
@@ -486,11 +500,9 @@ class _SalonDetailsState extends State<SalonDetails> {
                         ),
                         child: Text(
                           selectedLanguage == "English"
-                              ? translate(
-                                  'Contacter le salon', service_details_English)
+                              ? translate('Contacter le salon', service_details_English)
                               : selectedLanguage == "Arabic"
-                                  ? translate('Contacter le salon',
-                                      service_details_Arabic)
+                                  ? translate('Contacter le salon', service_details_Arabic)
                                   : 'Contacter le salon',
                           style: TextStyle(
                             color: Colors.white,
@@ -527,15 +539,11 @@ class _SalonDetailsState extends State<SalonDetails> {
                     width: double.infinity,
                     height: double.infinity,
                     errorWidget: (context, url, error) => CachedNetworkImage(
-                      imageUrl:
-                          "https://spabooking.pro/assets/no-image-18732f44.png",
+                      imageUrl: "https://spabooking.pro/assets/no-image-18732f44.png",
                       width: 24,
                       height: 24,
                       placeholder: (context, url) => Center(
-                        child: Container(
-                            width: 40,
-                            height: 40,
-                            child: CircularProgressIndicator()),
+                        child: Container(width: 40, height: 40, child: CircularProgressIndicator()),
                       ),
                     ),
                   );
@@ -549,10 +557,8 @@ class _SalonDetailsState extends State<SalonDetails> {
                 ),
                 pagination: const SwiperPagination(
                   builder: DotSwiperPaginationBuilder(
-                    color: Color.fromARGB(
-                        255, 228, 161, 183), // Set inactive dot color
-                    activeColor:
-                        Color(0xFFD91A5B), // Set active dot color to pink
+                    color: Color.fromARGB(255, 228, 161, 183), // Set inactive dot color
+                    activeColor: Color(0xFFD91A5B), // Set active dot color to pink
                     activeSize: 10.0,
                     size: 8.0,
                   ),
@@ -606,17 +612,12 @@ class _SalonDetailsState extends State<SalonDetails> {
                             fit: BoxFit.cover,
                             width: 40,
                             height: 40,
-                            errorWidget: (context, url, error) =>
-                                CachedNetworkImage(
-                              imageUrl:
-                                  "https://spabooking.pro/assets/no-image-18732f44.png",
+                            errorWidget: (context, url, error) => CachedNetworkImage(
+                              imageUrl: "https://spabooking.pro/assets/no-image-18732f44.png",
                               width: 24,
                               height: 24,
                               placeholder: (context, url) => Center(
-                                child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    child: CircularProgressIndicator()),
+                                child: Container(width: 40, height: 40, child: CircularProgressIndicator()),
                               ),
                             ),
                           ))),
@@ -624,27 +625,19 @@ class _SalonDetailsState extends State<SalonDetails> {
                         width: 10,
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical:
-                                5), // Set padding to 10 horizontal and 5 vertical
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), // Set padding to 10 horizontal and 5 vertical
 
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(
-                              10), // Set border radius to 10
+                          borderRadius: BorderRadius.circular(10), // Set border radius to 10
                         ),
                         child: Row(
-                          children: [
-                            buildGenderText(genre),
-                            buildGenderIcons(genre)
-                          ],
+                          children: [buildGenderText(genre), buildGenderIcons(genre)],
                         ),
                       ),
                       const SizedBox(width: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           color: isOpenNow ? Colors.green : Colors.red,
                           borderRadius: BorderRadius.circular(10),
@@ -654,18 +647,14 @@ class _SalonDetailsState extends State<SalonDetails> {
                             Text(
                               isOpenNow
                                   ? selectedLanguage == "English"
-                                      ? translate(
-                                          'Ouvert', service_details_English)
+                                      ? translate('Ouvert', service_details_English)
                                       : selectedLanguage == "Arabic"
-                                          ? translate(
-                                              'Ouvert', service_details_Arabic)
+                                          ? translate('Ouvert', service_details_Arabic)
                                           : 'Ouvert'
                                   : selectedLanguage == "English"
-                                      ? translate(
-                                          'Fermé', service_details_English)
+                                      ? translate('Fermé', service_details_English)
                                       : selectedLanguage == "Arabic"
-                                          ? translate(
-                                              'Fermé', service_details_Arabic)
+                                          ? translate('Fermé', service_details_Arabic)
                                           : 'Fermé',
                               style: TextStyle(
                                 color: isOpenNow ? Colors.white : Colors.white,
@@ -673,8 +662,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                                 fontSize: 14,
                               ),
                             ),
-                            const SizedBox(
-                                width: 4), // Add space between text and icon
+                            const SizedBox(width: 4), // Add space between text and icon
                             Icon(
                               isOpenNow ? Icons.check_circle : Icons.lock,
                               color: Colors.white,
@@ -714,8 +702,7 @@ class _SalonDetailsState extends State<SalonDetails> {
             right: 100,
             child: Container(
               height: 50,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
               child: Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFD91A5B).withOpacity(0.7),
@@ -730,8 +717,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                     fontSize: 18.0,
                   ),
                   maxLines: 2, // Limit the maximum number of lines to 2
-                  overflow:
-                      TextOverflow.ellipsis, // Add ellipsis (...) for overflow
+                  overflow: TextOverflow.ellipsis, // Add ellipsis (...) for overflow
                 )),
               ),
             ),
@@ -742,23 +728,112 @@ class _SalonDetailsState extends State<SalonDetails> {
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isStarred = !isStarred;
-                    });
-                  },
+                  // onTap: () {
+                  //   setState(() {
+                  //     isStarred = !isStarred;
+                  //   });
+                  // },
                   child: CircleAvatar(
-                    backgroundColor:
-                        isStarred ? Colors.transparent : Colors.transparent,
+                    backgroundColor: Colors.transparent,
                     child: IconButton(
                       icon: Icon(
-                        isStarred ? Icons.favorite : Icons.favorite_border,
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
                         color: const Color(0xFFD91A5B),
                         size: 30,
                       ),
                       onPressed: () async {
-                        if (!isStarred) {
-                          await storeFavorite();
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        String? localId = prefs.getString('id');
+
+                        if (localId != null) {
+                          if (isFavorite == false) {
+                            print("object");
+                            await storeFavorite(); // Add to favorites
+                            setState(() {
+                              isFavorite = true;
+                            });
+                          } else {
+                            print("remove");
+                            await removeFavorite(widget.id); // Remove from favorites
+                            setState(() {
+                              isFavorite = false;
+                            });
+                          }
+                        } else {
+                          // Show dialog for unauthenticated users
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                elevation: 10.0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  side: BorderSide(
+                                    color: Color(0xFFD91A5B),
+                                  ),
+                                ),
+                                title: Text(
+                                  selectedLanguage == "English"
+                                      ? "You are not signed in!"
+                                      : selectedLanguage == "Arabic"
+                                          ? "أنت غير مسجل الدخول!"
+                                          : "Vous n'êtes pas connecté!",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Color(0xFFD91A5B)),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(height: 20),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        ElevatedButton.icon(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => LoginView(comes: true),
+                                              ),
+                                            );
+                                          },
+                                          icon: Icon(Icons.login),
+                                          label: Text(
+                                            selectedLanguage == "English"
+                                                ? "Sign In"
+                                                : selectedLanguage == "Arabic"
+                                                    ? "تسجيل الدخول"
+                                                    : "Connexion",
+                                          ),
+                                        ),
+                                        SizedBox(width: 15),
+                                        ElevatedButton.icon(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => SignUpView(comes: true),
+                                              ),
+                                            );
+                                          },
+                                          icon: Icon(Icons.person_add),
+                                          label: Text(
+                                            selectedLanguage == "English"
+                                                ? "Sign Up"
+                                                : selectedLanguage == "Arabic"
+                                                    ? "التسجيل"
+                                                    : "S'inscrire",
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
                         }
                       },
                     ),
@@ -807,23 +882,16 @@ class _SalonDetailsState extends State<SalonDetails> {
                             });
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8.0),
-                            margin: const EdgeInsets.only(
-                                right: 8.0), // Add margin for spacing
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                            margin: const EdgeInsets.only(right: 8.0), // Add margin for spacing
                             decoration: BoxDecoration(
-                              color: choice == selectedSection
-                                  ? const Color(0xFFD91A5B)
-                                  : const Color.fromARGB(255, 217, 217,
-                                      217), // Set grey color when unselected
+                              color: choice == selectedSection ? const Color(0xFFD91A5B) : const Color.fromARGB(255, 217, 217, 217), // Set grey color when unselected
                               borderRadius: BorderRadius.circular(15.0),
                             ),
                             child: Text(
                               choice,
                               style: TextStyle(
-                                color: choice == selectedSection
-                                    ? Colors.white
-                                    : Colors.black,
+                                color: choice == selectedSection ? Colors.white : Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -882,16 +950,14 @@ class _SalonDetailsState extends State<SalonDetails> {
                             children: [
                               Row(
                                 children: [
-                                  const Icon(Icons.spa,
-                                      color: Color(0xFFD91A5B)),
+                                  const Icon(Icons.spa, color: Color(0xFFD91A5B)),
                                   Text(
                                       '  ${selectedLanguage == "English" ? translate('Avis totaux', service_details_English) : selectedLanguage == "Arabic" ? translate('Avis totaux', service_details_Arabic) : 'Avis totaux'}: $Tottal_review '),
                                 ],
                               ),
                               Row(
                                 children: [
-                                  const Icon(Icons.star,
-                                      color: Color(0xFFD91A5B)),
+                                  const Icon(Icons.star, color: Color(0xFFD91A5B)),
                                   Text(
                                       '  ${selectedLanguage == "English" ? translate('Moyenne', service_details_English) : selectedLanguage == "Arabic" ? translate('Moyenne', service_details_Arabic) : 'Moyenne'}: $avrage_review'),
                                 ],
@@ -907,8 +973,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                       title: selectedLanguage == "English"
                           ? translate('Contactez-nous', service_details_English)
                           : selectedLanguage == "Arabic"
-                              ? translate(
-                                  'Contactez-nous', service_details_Arabic)
+                              ? translate('Contactez-nous', service_details_Arabic)
                               : 'Contactez-nous',
                       content: [
                         //_buildContactRow(Icons.email, "Email doesn't exist"),
@@ -919,11 +984,9 @@ class _SalonDetailsState extends State<SalonDetails> {
                         _buildContactRow(
                             Icons.message,
                             selectedLanguage == "English"
-                                ? translate('Envoyer un message',
-                                    service_details_English)
+                                ? translate('Envoyer un message', service_details_English)
                                 : selectedLanguage == "Arabic"
-                                    ? translate('Envoyer un message',
-                                        service_details_Arabic)
+                                    ? translate('Envoyer un message', service_details_Arabic)
                                     : 'Envoyer un message'),
                       ],
                     ),
@@ -948,11 +1011,9 @@ class _SalonDetailsState extends State<SalonDetails> {
                         children: [
                           Text(
                             selectedLanguage == "English"
-                                ? translate('Liste de disponibilité',
-                                    service_details_English)
+                                ? translate('Liste de disponibilité', service_details_English)
                                 : selectedLanguage == "Arabic"
-                                    ? translate('Liste de disponibilité',
-                                        service_details_Arabic)
+                                    ? translate('Liste de disponibilité', service_details_Arabic)
                                     : 'Liste de disponibilité',
                             style: TextStyle(
                               fontSize: 16.0,
@@ -975,8 +1036,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                             Visibility(
                               visible: generateText(day),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     '${selectedLanguage == "English" ? translate(day, service_details_English) : selectedLanguage == "Arabic" ? translate(day, service_details_Arabic) : day}:',
@@ -998,8 +1058,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                       title: selectedLanguage == "English"
                           ? translate('localisation', service_details_English)
                           : selectedLanguage == "Arabic"
-                              ? translate(
-                                  'localisation', service_details_Arabic)
+                              ? translate('localisation', service_details_Arabic)
                               : 'localisation',
                       content: [
                         _buildLocationMap(),
@@ -1025,9 +1084,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: _buildServiceListView()),
+                      SizedBox(width: MediaQuery.of(context).size.width, child: _buildServiceListView()),
                       const SizedBox(
                         height: 50,
                       ),
@@ -1038,8 +1095,7 @@ class _SalonDetailsState extends State<SalonDetails> {
             Positioned.fill(
                 top: MediaQuery.of(context).size.height * 0.36 + 50,
                 child: Container(
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: 16.0), // Adjust the margin as needed
+                  margin: const EdgeInsets.symmetric(horizontal: 16.0), // Adjust the margin as needed
                   child: Column(
                     children: [
                       if (images.isNotEmpty)
@@ -1049,8 +1105,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                             shrinkWrap: true,
                             scrollDirection: Axis.vertical,
                             itemCount: images.length,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: _calculateCrossAxisCount(context),
                               mainAxisSpacing: 14.0,
                               crossAxisSpacing: 14.0,
@@ -1065,8 +1120,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                                     builder: (BuildContext context) {
                                       return Dialog(
                                         child: Container(
-                                          width:
-                                              MediaQuery.of(context).size.width,
+                                          width: MediaQuery.of(context).size.width,
                                           height: 300.0,
                                           decoration: BoxDecoration(
                                             image: DecorationImage(
@@ -1232,8 +1286,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                     ),
                     maxLines: 3, // Set the maximum number of lines
                     softWrap: true, // Allow the text to wrap to the next line
-                    overflow: TextOverflow
-                        .ellipsis, // Display ellipsis (...) if the text overflows
+                    overflow: TextOverflow.ellipsis, // Display ellipsis (...) if the text overflows
                   ),
                 ),
                 Row(mainAxisSize: MainAxisSize.min, children: [
@@ -1280,11 +1333,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                 ),
                 const SizedBox(height: 4.0),
                 Row(
-                  children: [
-                    buildGenderTextsimple(averageRating.replaceAll(',', '')),
-                    const SizedBox(width: 4.0),
-                    buildGenderIcons(averageRating.replaceAll(',', ''))
-                  ],
+                  children: [buildGenderTextsimple(averageRating.replaceAll(',', '')), const SizedBox(width: 4.0), buildGenderIcons(averageRating.replaceAll(',', ''))],
                 ),
               ],
             ),
@@ -1297,8 +1346,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                   height: 30,
                   child: ElevatedButton(
                     onPressed: () async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
+                      SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? localId = prefs.getString('id');
                       if (localId != null) {
                         Navigator.push(
@@ -1319,8 +1367,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15.0),
                                 side: BorderSide(
-                                  color: Color(
-                                      0xFFD91A5B), // Add border color here
+                                  color: Color(0xFFD91A5B), // Add border color here
                                 ),
                               ),
                               title: Text(
@@ -1337,8 +1384,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                                 children: [
                                   SizedBox(height: 20),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       ElevatedButton.icon(
                                         onPressed: () {
@@ -1347,19 +1393,16 @@ class _SalonDetailsState extends State<SalonDetails> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) =>
-                                                  LoginView(comes: true),
+                                              builder: (context) => LoginView(comes: true),
                                             ),
                                           );
                                         },
-                                        icon: Icon(
-                                            Icons.login), // Add the login icon
-                                        label:
-                                            Text(selectedLanguage == "English"
-                                                ? "Sign In"
-                                                : selectedLanguage == "Arabic"
-                                                    ? "تسجيل الدخول"
-                                                    : "Connexion"),
+                                        icon: Icon(Icons.login), // Add the login icon
+                                        label: Text(selectedLanguage == "English"
+                                            ? "Sign In"
+                                            : selectedLanguage == "Arabic"
+                                                ? "تسجيل الدخول"
+                                                : "Connexion"),
                                       ),
                                       SizedBox(
                                         width: 15,
@@ -1371,13 +1414,11 @@ class _SalonDetailsState extends State<SalonDetails> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SignUpView(comes: true),
+                                              builder: (context) => SignUpView(comes: true),
                                             ),
                                           );
                                         },
-                                        icon: Icon(Icons
-                                            .person_add), // Add the sign-up icon
+                                        icon: Icon(Icons.person_add), // Add the sign-up icon
                                         label: Text(
                                           selectedLanguage == "English"
                                               ? "Sign Up"
@@ -1430,6 +1471,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                     style: ElevatedButton.styleFrom(
                       // primary: const Color.fromARGB(255, 235, 235, 235),
                       // onPrimary: const Color(0xFFD91A5B),
+                      backgroundColor: Color.fromARGB(255, 235, 235, 235),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
                       ),
@@ -1438,8 +1480,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                       selectedLanguage == "English"
                           ? translate("Voir détails", service_details_English)
                           : selectedLanguage == "Arabic"
-                              ? translate(
-                                  "Voir détails", service_details_Arabic)
+                              ? translate("Voir détails", service_details_Arabic)
                               : "Voir détails",
                       style: TextStyle(
                         color: Color(0xFFD91A5B),
@@ -1610,15 +1651,8 @@ class _SalonDetailsState extends State<SalonDetails> {
 
   Widget _buildReviewListView() {
     // Calculate the average rating
-    double averageRating = reviews.isNotEmpty
-        ? (reviews.map((review) => review.stars).reduce((a, b) => a + b) /
-                reviews.length)
-            .floorToDouble()
-        : 0;
-    double averageRat = reviews.isNotEmpty
-        ? (reviews.map((review) => review.stars).reduce((a, b) => a + b) /
-            reviews.length)
-        : 0;
+    double averageRating = reviews.isNotEmpty ? (reviews.map((review) => review.stars).reduce((a, b) => a + b) / reviews.length).floorToDouble() : 0;
+    double averageRat = reviews.isNotEmpty ? (reviews.map((review) => review.stars).reduce((a, b) => a + b) / reviews.length) : 0;
     averageRat.toStringAsFixed(2);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1642,8 +1676,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                     selectedLanguage == "English"
                         ? translate('Note moyenne : ', service_details_English)
                         : selectedLanguage == "Arabic"
-                            ? translate(
-                                'Note moyenne : ', service_details_Arabic)
+                            ? translate('Note moyenne : ', service_details_Arabic)
                             : 'Note moyenne : ',
                     style: TextStyle(
                       fontSize: 15.0,
@@ -1705,8 +1738,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            LoginView(comes: true),
+                                        builder: (context) => LoginView(comes: true),
                                       ),
                                     );
                                   },
@@ -1727,13 +1759,11 @@ class _SalonDetailsState extends State<SalonDetails> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            SignUpView(comes: true),
+                                        builder: (context) => SignUpView(comes: true),
                                       ),
                                     );
                                   },
-                                  icon: Icon(
-                                      Icons.person_add), // Add the sign-up icon
+                                  icon: Icon(Icons.person_add), // Add the sign-up icon
                                   label: Text(
                                     selectedLanguage == "English"
                                         ? "Sign Up"
@@ -1754,11 +1784,9 @@ class _SalonDetailsState extends State<SalonDetails> {
               icon: Icon(Icons.comment, color: Colors.white),
               label: Text(
                 selectedLanguage == "English"
-                    ? translate(
-                        "Ajoutez votre commentaire", service_details_English)
+                    ? translate("Ajoutez votre commentaire", service_details_English)
                     : selectedLanguage == "Arabic"
-                        ? translate(
-                            "Ajoutez votre commentaire", service_details_Arabic)
+                        ? translate("Ajoutez votre commentaire", service_details_Arabic)
                         : "Ajoutez votre commentaire",
                 style: TextStyle(
                   color: Colors.white,
@@ -1784,8 +1812,7 @@ class _SalonDetailsState extends State<SalonDetails> {
             physics: const BouncingScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children:
-                  reviews.map((review) => _buildReviewItem(review)).toList(),
+              children: reviews.map((review) => _buildReviewItem(review)).toList(),
             ),
           ),
         ),
@@ -1837,8 +1864,7 @@ class _SalonDetailsState extends State<SalonDetails> {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundImage: NetworkImage(
-                        review.avatar), // Replace with your actual image URL
+                    backgroundImage: NetworkImage(review.avatar), // Replace with your actual image URL
                     radius: 20.0,
                   ),
                   const SizedBox(width: 8.0),
@@ -1856,9 +1882,7 @@ class _SalonDetailsState extends State<SalonDetails> {
                   5,
                   (index) => Icon(
                     Icons.star,
-                    color: index < review.stars
-                        ? const Color(0xFFD91A5B)
-                        : Colors.grey,
+                    color: index < review.stars ? const Color(0xFFD91A5B) : Colors.grey,
                   ),
                 ),
               ),
@@ -1886,9 +1910,7 @@ class _SalonDetailsState extends State<SalonDetails> {
   Widget buildAvailabilityText(String day) {
     Map<String, dynamic> L = {};
 
-    var availability = availabilityData.firstWhere(
-        (availability) => availability['day'] == day,
-        orElse: () => L);
+    var availability = availabilityData.firstWhere((availability) => availability['day'] == day, orElse: () => L);
 
     if (availability != null) {
       String startTime = availability['start_at'].toString();
@@ -1901,9 +1923,7 @@ class _SalonDetailsState extends State<SalonDetails> {
             borderRadius: BorderRadius.circular(12.0),
           ),
           child: Text(
-            startTime.toString() != "null"
-                ? '${startTime.toString().substring(0, 5)} - ${endTime.toString().substring(0, 5)}'
-                : 'No data available',
+            startTime.toString() != "null" ? '${startTime.toString().substring(0, 5)} - ${endTime.toString().substring(0, 5)}' : 'No data available',
             style: const TextStyle(
               fontSize: 12.0,
               color: Colors.white,
@@ -1924,9 +1944,7 @@ class _SalonDetailsState extends State<SalonDetails> {
   bool generateText(String day) {
     Map<String, dynamic> L = {};
 
-    var availability = availabilityData.firstWhere(
-        (availability) => availability['day'] == day,
-        orElse: () => L);
+    var availability = availabilityData.firstWhere((availability) => availability['day'] == day, orElse: () => L);
 
     if (availability != null) {
       String startTime = availability['start_at'].toString();
@@ -1955,9 +1973,7 @@ class _SalonDetailsState extends State<SalonDetails> {
     ]) {
       Map<String, dynamic> L = {};
 
-      var availability = availabilityData.firstWhere(
-          (availability) => availability['day'] == day,
-          orElse: () => L);
+      var availability = availabilityData.firstWhere((availability) => availability['day'] == day, orElse: () => L);
 
       if (availability.isEmpty) {
         // Salon is not available on this day
@@ -1974,16 +1990,12 @@ class _SalonDetailsState extends State<SalonDetails> {
       DateTime endTime = DateFormat('HH:mm').parse(endTimeStr);
       DateTime currentTime = DateTime.now();
 
-      print("rrrrrrrrrrrrrrrrrrrrrrrr " + getCurrentDayNameInFrench());
-      print("MMMMMMMMMMMMMMMMMMM " + day);
-      print("NNNNNNNNNNNNNNNNNNNNNNNNNN " + startTime.hour.toString());
-      print("eeeeeeeeeeeeeeeeeeeeeeeeeee " + endTime.hour.toString());
-      if (getCurrentDayNameInFrench() == day &&
-          currentTime.hour > startTime.hour &&
-          currentTime.hour < endTime.hour) {
-        print(
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " +
-                endTime.hour.toString());
+      logger.d("rrrrrrrrrrrrrrrrrrrrrrrr " + getCurrentDayNameInFrench());
+      logger.d("MMMMMMMMMMMMMMMMMMM " + day);
+      logger.d("NNNNNNNNNNNNNNNNNNNNNNNNNN " + startTime.hour.toString());
+      logger.d("eeeeeeeeeeeeeeeeeeeeeeeeeee " + endTime.hour.toString());
+      if (getCurrentDayNameInFrench() == day && currentTime.hour > startTime.hour && currentTime.hour < endTime.hour) {
+        logger.d("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + endTime.hour.toString());
         setState(() {
           isOpenNow = true;
         });
@@ -2193,15 +2205,15 @@ class _SalonDetailsState extends State<SalonDetails> {
         setState(() {
           isStarred = true;
         });
-        print("API call successful");
+        logger.d("API call successful");
+        await storeFavoriteInStorage(widget.id);
       } else {
         // API call failed, handle the error
-        print(
-            "API call failed with status code ${response.statusCode} : ${response.body} ");
+        logger.d("API call failed with status code ${response.statusCode} : ${response.body} ");
       }
     } catch (e) {
       // Handle exceptions or network errors
-      print("Error during API call: $e");
+      logger.d("Error during API call: $e");
     }
   }
 
@@ -2211,11 +2223,7 @@ class _SalonDetailsState extends State<SalonDetails> {
       String? localId = prefs.getString('id').toString();
       final response = await http.post(
         Uri.parse('$domain2/api/getFavoriteByClientAndSalonId'),
-        body: {
-          "client_id": localId.toString(),
-          "type": "salon",
-          "salon_id": widget.id.toString()
-        },
+        body: {"client_id": localId.toString(), "type": "salon", "salon_id": widget.id.toString()},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -2223,10 +2231,10 @@ class _SalonDetailsState extends State<SalonDetails> {
           isStarred = true;
         });
       } else {
-        print('Error 9: ${response.statusCode}');
+        logger.d('Error 9: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error 8: $error');
+      logger.d('Error 8: $error');
     }
   }
 }

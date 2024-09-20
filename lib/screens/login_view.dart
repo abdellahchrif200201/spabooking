@@ -489,17 +489,18 @@ class _LoginViewState extends State<LoginView> {
                             String nameFromResponse = data['data']['name'];
                             String emailFromResponse = data['data']['email'];
                             String phoneFromResponse = data['data']['phone'];
+                            String image = data['data']['media']['original_url'];
                             String id = data['data']['id'].toString();
 
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+
                             prefs.setString('authToken', tokenFromResponse);
                             prefs.setString('name', nameFromResponse);
                             prefs.setString('email', emailFromResponse);
                             prefs.setString('phone', phoneFromResponse);
                             prefs.setString('id', id);
-                            prefs.setString(
-                                'password', passwordController.text);
+                            prefs.setString('password', passwordController.text);
+                            prefs.setString('image', image);
                             if (widget.comes) {
                               Navigator.pop(context);
                             } else {
