@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:spa/Models/cities.dart';
@@ -7,37 +6,21 @@ import 'package:spa/screens/salon_list_favoris.dart';
 class CityCart extends StatefulWidget {
   final City city;
 
-  CityCart({required this.city});
+  const CityCart({super.key, required this.city});
 
   @override
   _CityCartState createState() => _CityCartState();
 }
 
 class _CityCartState extends State<CityCart> {
-  bool _isHovered = false;
-  late Color _randomColor;
+  final bool _isHovered = false;
 
   @override
   void initState() {
     super.initState();
-    _randomColor = _getRandomColor();
   }
 
-  Color _getRandomColor() {
-    Random random = Random();
-    return Color.fromARGB(
-      255,
-      random.nextInt(256),
-      random.nextInt(256),
-      random.nextInt(256),
-    );
-  }
 
-  void _updateHoverState(bool isHovered) {
-    setState(() {
-      _isHovered = isHovered;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +61,7 @@ class _CityCartState extends State<CityCart> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15.0),
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
@@ -95,7 +78,7 @@ class _CityCartState extends State<CityCart> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15.0),
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
@@ -117,13 +100,13 @@ class _CityCartState extends State<CityCart> {
                 children: [
                   Text(
                     widget.city.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   /* Text(
                     'ID: ${widget.city.id}',
                     style: TextStyle(

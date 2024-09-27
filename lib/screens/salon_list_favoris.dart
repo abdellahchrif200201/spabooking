@@ -63,22 +63,15 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
           List<PLaces3> latestPlaces = salons.map((salon) {
             print("stop here");
             List<dynamic> mediaList = salon['media'] as List<dynamic>;
-            String mainImage =
-                mediaList.isNotEmpty ? mediaList[0]['original_url'] : '';
+            String mainImage = mediaList.isNotEmpty ? mediaList[0]['original_url'] : '';
 
             // Extract all side images from 'original_url' in 'media'
-            List<String> sideImages = mediaList
-                .map((media) => media['original_url'].toString())
-                .toList();
+            List<String> sideImages = mediaList.map((media) => media['original_url'].toString()).toList();
             if (sideImages.isEmpty) {
-              sideImages
-                  .add("https://spabooking.pro/assets/no-image-18732f44.png");
+              sideImages.add("https://spabooking.pro/assets/no-image-18732f44.png");
             }
             print(salon['reviews']);
-            String stars = (salon['reviews'] != null &&
-                    salon['reviews']['average_rating'] != null)
-                ? salon['reviews']['average_rating'].toString()
-                : "0.0";
+            String stars = (salon['reviews'] != null && salon['reviews']['average_rating'] != null) ? salon['reviews']['average_rating'].toString() : "0.0";
 
             print("Name: ${salon['name']}");
             print("ID: ${salon['id']}");
@@ -87,8 +80,7 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
             print("Location: ${salon['city']}");
             print("Stars: $stars");
             print("Type: ${salon['genre']}");
-            print(
-                "Is Open Now: ${isSalonOpenNow(List<Map<String, dynamic>>.from(salon['disponibility'] ?? []))}");
+            print("Is Open Now: ${isSalonOpenNow(List<Map<String, dynamic>>.from(salon['disponibility'] ?? []))}");
             if (!cities.contains(salon['city'].toString())) {
               cities.add(salon['city'].toString());
             }
@@ -100,8 +92,7 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
               location: salon['city'].toString(),
               stars: double.parse(stars),
               type: salon['genre'].toString(),
-              is_opend: isSalonOpenNow(List<Map<String, dynamic>>.from(
-                  salon['disponibility'] ?? [])),
+              is_opend: isSalonOpenNow(List<Map<String, dynamic>>.from(salon['disponibility'] ?? [])),
             );
           }).toList();
 
@@ -274,11 +265,9 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
                                   SizedBox(height: 16),
                                   Text(
                                     selectedLanguage == "English"
-                                        ? translate('Rechercher des salons',
-                                            home_English)
+                                        ? translate('Rechercher des salons', home_English)
                                         : selectedLanguage == "Arabic"
-                                            ? translate('Rechercher des salons',
-                                                home_Arabic)
+                                            ? translate('Rechercher des salons', home_Arabic)
                                             : 'Rechercher des salons',
                                     style: TextStyle(
                                       fontSize: 18,
@@ -290,8 +279,7 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
                             ),
                           )
                         : GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                               childAspectRatio: 2 / 3,
                               maxCrossAxisExtent: 200,
                               crossAxisSpacing: 16,
@@ -364,9 +352,7 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
         padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
         margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 6.0),
         decoration: BoxDecoration(
-          color: filterSelection[label]
-              ? const Color(0xFFD91A5B)
-              : Colors.transparent,
+          color: filterSelection[label] ? const Color(0xFFD91A5B) : Colors.transparent,
           borderRadius: BorderRadius.circular(15.0),
           border: Border.all(
             color: const Color(0xFFD91A5B),
@@ -381,9 +367,7 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
               height: 20,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: filterSelection[label]
-                    ? Colors.white
-                    : const Color(0xFFD91A5B),
+                color: filterSelection[label] ? Colors.white : const Color(0xFFD91A5B),
                 border: Border.all(
                   color: const Color(0xFFD91A5B),
                   width: 1.5,
@@ -395,9 +379,7 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
             Text(
               list_choises[label],
               style: TextStyle(
-                color: filterSelection[label]
-                    ? Colors.white
-                    : const Color(0xFFD91A5B),
+                color: filterSelection[label] ? Colors.white : const Color(0xFFD91A5B),
               ),
             ),
           ],
@@ -521,13 +503,9 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
                   errorWidget: (context, url, error) => CachedNetworkImage(
                     fit: BoxFit.fitWidth,
                     width: double.infinity,
-                    imageUrl:
-                        "https://spabooking.pro/assets/no-image-18732f44.png",
+                    imageUrl: "https://spabooking.pro/assets/no-image-18732f44.png",
                     placeholder: (context, url) => Center(
-                      child: Container(
-                          width: 40,
-                          height: 40,
-                          child: CircularProgressIndicator()),
+                      child: Container(width: 40, height: 40, child: CircularProgressIndicator()),
                     ),
                   ),
                 ),
@@ -553,17 +531,12 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
                           fit: BoxFit.cover,
                           width: 40,
                           height: 40,
-                          errorWidget: (context, url, error) =>
-                              CachedNetworkImage(
-                            imageUrl:
-                                "https://spabooking.pro/assets/no-image-18732f44.png",
+                          errorWidget: (context, url, error) => CachedNetworkImage(
+                            imageUrl: "https://spabooking.pro/assets/no-image-18732f44.png",
                             width: 24,
                             height: 24,
                             placeholder: (context, url) => Center(
-                              child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  child: CircularProgressIndicator()),
+                              child: Container(width: 40, height: 40, child: CircularProgressIndicator()),
                             ),
                           ),
                         )),
@@ -590,15 +563,12 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
                               color: Colors.black87,
                             ),
                             maxLines: 3, // Set the maximum number of lines
-                            softWrap:
-                                true, // Allow the text to wrap to the next line
-                            overflow: TextOverflow
-                                .ellipsis, // Display ellipsis (...) if the text overflows
+                            softWrap: true, // Allow the text to wrap to the next line
+                            overflow: TextOverflow.ellipsis, // Display ellipsis (...) if the text overflows
                           )),
                       Row(
                         children: [
-                          const Icon(Icons.star,
-                              color: Color(0xFFD91A5B), size: 16),
+                          const Icon(Icons.star, color: Color(0xFFD91A5B), size: 16),
                           const SizedBox(width: 4),
                           Text(
                             place.stars.toString(),
@@ -652,19 +622,15 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
       if (startTimeStr != null && endTimeStr != null) {
         DateTime startTime = DateFormat('HH:mm').parse(startTimeStr);
         DateTime endTime = DateFormat('HH:mm').parse(endTimeStr);
-        DateTime currentTimeOnlyTime = DateTime.parse(
-            '1970-01-01 ${DateFormat('HH:mm').format(currentTime)}');
-        String dayNameInFrench =
-            DateFormat('EEEE', 'fr_FR').format(currentTime);
+        DateTime currentTimeOnlyTime = DateTime.parse('1970-01-01 ${DateFormat('HH:mm').format(currentTime)}');
+        String dayNameInFrench = DateFormat('EEEE', 'fr_FR').format(currentTime);
         print("wwwwwwwwwwwwwwwwwwwwwwwwwwwDay Name: $dayNameInFrench");
         print("yyyyyyyyyyyyyyyyyyyyyyyyyyyDay Name: $day  ");
         print("aaaaaaaaaaaaaaaaaaaaaaaaaaaStart: $startTime ");
         print("yyyyyyyyyyyyyyyyyyyyyyyyyyyEnd: $endTime");
         print("bbbbbbbbbbbbbbbbbbbbbbbbbbbCurrent: $currentTimeOnlyTime");
 
-        if (dayNameInFrench.toLowerCase() == day.toLowerCase() &&
-            currentTimeOnlyTime.isAfter(startTime) &&
-            currentTimeOnlyTime.isBefore(endTime)) {
+        if (dayNameInFrench.toLowerCase() == day.toLowerCase() && currentTimeOnlyTime.isAfter(startTime) && currentTimeOnlyTime.isBefore(endTime)) {
           print("Salon is open now!");
           return true;
         }
@@ -700,31 +666,22 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
     placeses_filtred = placeses;
     setState(() {
       if (filterSelection[0]) {
-        placeses_filtred =
-            placeses_filtred.where((place) => place.is_opend).toList();
+        placeses_filtred = placeses_filtred.where((place) => place.is_opend).toList();
       }
       if (filterSelection[1]) {
         placeses_filtred = placeses;
       }
       if (filterSelection[2]) {
-        placeses_filtred = placeses_filtred
-            .where((place) => place.type.contains("Homme"))
-            .toList();
+        placeses_filtred = placeses_filtred.where((place) => place.type.contains("Homme")).toList();
       }
       if (filterSelection[3]) {
-        placeses_filtred = placeses_filtred
-            .where((place) => place.type.contains("Femme"))
-            .toList();
+        placeses_filtred = placeses_filtred.where((place) => place.type.contains("Femme")).toList();
       }
       if (filterSelection[4]) {
-        placeses_filtred = placeses_filtred
-            .where((place) => place.type.contains("Mixte"))
-            .toList();
+        placeses_filtred = placeses_filtred.where((place) => place.type.contains("Mixte")).toList();
       }
       if (selectedCity != null) {
-        placeses_filtred = placeses_filtred
-            .where((place) => place.location == selectedCity)
-            .toList();
+        placeses_filtred = placeses_filtred.where((place) => place.location == selectedCity).toList();
       }
     });
   }

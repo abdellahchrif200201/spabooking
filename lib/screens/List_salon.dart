@@ -203,7 +203,6 @@ class _ListSalonState extends State<ListSalon> {
               logger.d("Type: ${salonData['genre']}");
             } else {
               print("Failed to fetch salon by ID ${salon['salon']['id']}");
-              print(salonResponse.body);
             }
           } catch (error) {
             print("Error during salon by ID ${salon['salon']['id']} API call: $error");

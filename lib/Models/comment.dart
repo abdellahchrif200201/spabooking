@@ -1,20 +1,18 @@
-import 'package:elegant_notification/elegant_notification.dart';
-import 'package:elegant_notification/resources/arrays.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spa/constents.dart';
 import 'package:spa/page_transltion/home_tr.dart';
 import 'package:http/http.dart' as http;
-import 'package:spa/constents.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class CustomRatingDialog extends StatefulWidget {
   final String id;
   final String name;
-  Function setst;
-  CustomRatingDialog(
-      {required this.id, required this.name, required this.setst});
+  final Function setst;
+  const CustomRatingDialog(
+      {super.key, required this.id, required this.name, required this.setst});
 
   @override
   _CustomRatingDialogState createState() => _CustomRatingDialogState();

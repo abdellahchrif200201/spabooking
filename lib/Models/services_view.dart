@@ -27,8 +27,7 @@ class ServiceView extends StatefulWidget {
   _ServiceViewState createState() => _ServiceViewState();
 }
 
-class _ServiceViewState extends State<ServiceView>
-    with SingleTickerProviderStateMixin {
+class _ServiceViewState extends State<ServiceView> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   bool isListVisible = false;
@@ -89,8 +88,7 @@ class _ServiceViewState extends State<ServiceView>
             // padding: const EdgeInsets.only(left: 16),
             decoration: BoxDecoration(
               border: Border(
-                bottom:
-                    BorderSide(color: Colors.black.withOpacity(0.5), width: 1),
+                bottom: BorderSide(color: Colors.black.withOpacity(0.5), width: 1),
               ),
             ),
             child: Row(
@@ -104,12 +102,10 @@ class _ServiceViewState extends State<ServiceView>
                             color: const Color(0xFFD91A5B),
                             width: 24,
                             height: 24,
-                            errorWidget: (context, url, error) =>
-                                CachedNetworkImage(
+                            errorWidget: (context, url, error) => CachedNetworkImage(
                                   width: 24,
                                   height: 24,
-                                  imageUrl:
-                                      "https://spabooking.pro/assets/no-image-18732f44.png",
+                                  imageUrl: "https://spabooking.pro/assets/no-image-18732f44.png",
                                   fit: BoxFit.fitWidth,
                                 ))
                         : Container(), // Adjust this condition based on your widget.icon availability
@@ -150,11 +146,9 @@ class _ServiceViewState extends State<ServiceView>
                   return Center(
                     child: Text(
                       selectedLanguage == "English"
-                          ? translate("Aucun élément dans cette liste.",
-                              serive_view_English)
+                          ? translate("Aucun élément dans cette liste.", serive_view_English)
                           : selectedLanguage == "Arabic"
-                              ? translate("Aucun élément dans cette liste.",
-                                  serive_view_Arabic)
+                              ? translate("Aucun élément dans cette liste.", serive_view_Arabic)
                               : "Aucun élément dans cette liste.",
                       style: TextStyle(
                         fontSize: 16,
@@ -170,9 +164,7 @@ class _ServiceViewState extends State<ServiceView>
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => FilteredGridPage(
-                                  Cat_Id: widget.Cat_Id, title: widget.title)),
+                          MaterialPageRoute(builder: (context) => FilteredGridPage(Cat_Id: widget.Cat_Id, title: widget.title)),
                         );
                       },
                       child: Text(
@@ -266,11 +258,9 @@ class _ServiceViewState extends State<ServiceView>
                     child: CachedNetworkImage(
                         imageUrl: place.mainImage,
                         fit: BoxFit.cover,
-                        errorWidget: (context, url, error) =>
-                            CachedNetworkImage(
+                        errorWidget: (context, url, error) => CachedNetworkImage(
                               fit: BoxFit.cover,
-                              imageUrl:
-                                  "https://spabooking.pro/assets/no-image-18732f44.png",
+                              imageUrl: "https://spabooking.pro/assets/no-image-18732f44.png",
                             )),
                   ),
                 ),
@@ -294,17 +284,12 @@ class _ServiceViewState extends State<ServiceView>
                             height: 40,
                             width: 40,
                             fit: BoxFit.cover,
-                            errorWidget: (context, url, error) =>
-                                CachedNetworkImage(
-                              imageUrl:
-                                  "https://spabooking.pro/assets/no-image-18732f44.png",
+                            errorWidget: (context, url, error) => CachedNetworkImage(
+                              imageUrl: "https://spabooking.pro/assets/no-image-18732f44.png",
                               width: 24,
                               height: 24,
                               placeholder: (context, url) => Center(
-                                child: Container(
-                                    width: 40,
-                                    height: 40,
-                                    child: CircularProgressIndicator()),
+                                child: Container(width: 40, height: 40, child: CircularProgressIndicator()),
                               ),
                             ),
                           ),
@@ -332,16 +317,13 @@ class _ServiceViewState extends State<ServiceView>
                                 color: Color(0xFFD91A5B),
                               ),
                               maxLines: 3, // Set the maximum number of lines
-                              softWrap:
-                                  true, // Allow the text to wrap to the next line
-                              overflow: TextOverflow
-                                  .ellipsis, // Display ellipsis (...) if the text overflows
+                              softWrap: true, // Allow the text to wrap to the next line
+                              overflow: TextOverflow.ellipsis, // Display ellipsis (...) if the text overflows
                             ),
                           ),
                           Row(
                             children: [
-                              const Icon(Icons.star,
-                                  color: Colors.amber, size: 16),
+                              const Icon(Icons.star, color: Colors.amber, size: 16),
                               const SizedBox(width: 4),
                               Text(
                                 place.stars.toString(),
@@ -365,10 +347,8 @@ class _ServiceViewState extends State<ServiceView>
                             color: Colors.black87,
                           ),
                           maxLines: 3, // Set the maximum number of lines
-                          softWrap:
-                              true, // Allow the text to wrap to the next line
-                          overflow: TextOverflow
-                              .ellipsis, // Display ellipsis (...) if the text overflows
+                          softWrap: true, // Allow the text to wrap to the next line
+                          overflow: TextOverflow.ellipsis, // Display ellipsis (...) if the text overflows
                         ),
                       ),
                       Text(

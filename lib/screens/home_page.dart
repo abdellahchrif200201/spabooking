@@ -30,11 +30,11 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _controllertext = TextEditingController();
 
   bool isListVisible = true;
-  late AnimationController _controller;
-  late Animation<double> _animation;
+  // late AnimationController _controller;
+  // late Animation<double> _animation;
   bool isListVisible2 = true;
   // late AnimationController _controller2;
-  late Animation<double> _animation2;
+  // late Animation<double> _animation2;
   bool isSearchVisible = false;
   List<City> Allcities = [];
   List<String> selectedOptions = [];
@@ -45,6 +45,11 @@ class _HomePageState extends State<HomePage> {
 
   // List of options with labels and icons
   List<Map<String, dynamic>> options = [];
+
+  int currentPage = 1;
+  bool isLoading = false;
+  bool hasMore = true;
+
   List<Map<String, dynamic>> updatedOptions = [];
   List<PLaces2> placeses = [];
   List<PLaces2> Recomanded = [];
@@ -257,11 +262,13 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   Future<void> _fetchAndStoreSalons() async {
     // fetchCategories();
-    fetchData();
-    getSlides();
-    getSalons();
-    getRecommended();
-    getcities();
+
+    await getSlides();
+    await getSalons();
+    await getRecommended();
+    await getcities();
+
+   await fetchInitialData();
     setState(() {});
   }
 
@@ -426,113 +433,225 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
-  void printFormattedJson(String jsonString) {
-    final parsedJson = jsonDecode(jsonString);
-    final formattedJsonString = const JsonEncoder.withIndent('  ').convert(parsedJson);
-    // logger.d(formattedJsonString);
+  // void printFormattedJson(String jsonString) {
+  //   final parsedJson = jsonDecode(jsonString);
+  //   final formattedJsonString = const JsonEncoder.withIndent('  ').convert(parsedJson);
+  //   // logger.d(formattedJsonString);
+  // }
+
+  Future<void> fetchInitialData() async {
+    // Load both page 1 and page 2 on initialization
+    await fetchData(1); // Fetch page 1
+    await fetchData(2); // Fetch page 2
+    await fetchData(3); // Fetch page 2
   }
 
-  void fetchData() async {
+  Future<void> fetchData(int page) async {
+    if (isLoading) return; // Prevent multiple requests
+
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       final response = await http.get(
-        Uri.parse('$domain2/api/getServices'),
+        Uri.parse('https://app.spabooking.pro/api/getServices?page=$page'),
       );
-
-      logger.d(response.body);
-
-      printFormattedJson(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         Map<String, dynamic> responseMap = json.decode(response.body);
-        List<dynamic> services = responseMap['services'];
+        List<dynamic> services = responseMap['services']['data'];
 
-        List<Map<String, dynamic>> servicesJson = List<Map<String, dynamic>>.from(services.map((service) {
-          List<String> sideImages = [];
-          if (service['media'] != null) {
-            sideImages = List<String>.from(service['media'].map((image) {
-              return image['original_url'];
-            }));
-          }
-          List<Map<String, dynamic>> categories = List<Map<String, dynamic>>.from(service['service_categories'].map((category) {
-            String categoryId = category['category']['id'].toString();
-            String categoryName = category['category']['name'];
-
-            // Check if 'media' is not empty before accessing the URL
-            String iconUrl = '';
-            if (category['category']['media'] != null && category['category']['media'].isNotEmpty) {
-              iconUrl = category['category']['media'][0]['original_url'];
+        List<Map<String, dynamic>> servicesJson = List<Map<String, dynamic>>.from(
+          services.map((service) {
+            List<String> sideImages = [];
+            if (service['media'] != null) {
+              sideImages = List<String>.from(service['media'].map((image) {
+                return image['original_url'];
+              }));
             }
+            List<Map<String, dynamic>> categories = List<Map<String, dynamic>>.from(
+              service['service_categories'].map((category) {
+                String categoryId = category['category']['id'].toString();
+                String categoryName = category['category']['name'];
+                String iconUrl = '';
+                if (category['category']['media'] != null && category['category']['media'].isNotEmpty) {
+                  iconUrl = category['category']['media'][0]['original_url'];
+                }
+                return {
+                  'categoryId': categoryId,
+                  'categoryName': categoryName,
+                  'icon': iconUrl,
+                };
+              }),
+            );
 
             return {
-              'categoryId': categoryId,
-              'categoryName': categoryName,
-              'icon': iconUrl,
+              'name': service['name'],
+              'id': service['id'],
+              'mainImage': sideImages.isNotEmpty ? sideImages[0] : '',
+              'sideImages': sideImages,
+              'location': service['duration'],
+              'stars': service['accepted'],
+              'type': service['genre'],
+              'price': service['price'],
+              'categories': categories,
+              'discount_price': service['discount_price'],
             };
-          }));
-
-          return {
-            'name': service['name'],
-            'id': service['id'],
-            'mainImage': sideImages.isNotEmpty ? sideImages[0] : '',
-            'sideImages': sideImages,
-            'location': service['duration'],
-            'stars': service['accepted'],
-            'type': service['genre'],
-            'price': service['price'],
-            'categories': categories,
-            'discount_price': service['discount_price']
-          };
-        }));
+          }),
+        );
 
         Map<String, Map<String, dynamic>> categoryMap = {};
 
-        servicesJson.forEach((service) {
-          service['categories'].forEach((category) {
-            String categoryId = category['categoryId'].toString(); // Convert to string
-            if (!categoryMap.containsKey(categoryId)) {
-              categoryMap[categoryId] = {
-                'id': categoryId,
-                'label': category['categoryName'],
-                'icon': category['icon'], // Replace with the actual icon URL
+        // Add services under the appropriate category, ensuring each category name is shown once
+        for (var service in servicesJson) {
+          for (var category in service['categories']) {
+            String categoryName = category['categoryName'];
+            if (!categoryMap.containsKey(categoryName)) {
+              categoryMap[categoryName] = {
+                'id': category['categoryId'],
+                'label': categoryName,
+                'icon': category['icon'],
                 'services': [],
               };
             }
-            categoryMap[categoryId]!['services'].add(service);
-          });
-        });
+            // Add the service only if it's not already added to the category
+            if (!categoryMap[categoryName]!['services'].contains(service)) {
+              categoryMap[categoryName]!['services'].add(service);
+            }
+          }
+        }
 
-        // Create the final options list
-        List<Map<String, dynamic>> optionsss = [];
-        categoryMap.forEach((categoryId, categoryOption) {
-          optionsss.add({
-            'id': categoryId,
+        List<Map<String, dynamic>> newOptions = [];
+        categoryMap.forEach((categoryName, categoryOption) {
+          newOptions.add({
+            'id': categoryOption['id'],
             'label': categoryOption['label'],
             'icon': categoryOption['icon'],
-            'services': categoryOption['services'],
+            // Limit the services to only 3
+            'services': categoryOption['services'].take(3).toList(),
           });
         });
 
-        // Print the result for verification
-        /*  optionsss.forEach((option) {
-          print('Category: ${option['label']}');
-          option['services'].forEach((service) {
-            print('- Service: ${service['name']}');
-            // Add other service details as needed
-          });
-        });*/
-
-        // Set the options state
         setState(() {
-          options = optionsss;
+          options.addAll(newOptions); // Append new data to the existing list
         });
       } else {
         print('Failed to load data. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching data: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-    setState(() {});
   }
+
+  //  fetchData() async {
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse('$domain2/api/getServices?page=2'), //  {/*?page=1 */}
+  //     );
+
+  //     // logger.d(response.body);
+
+  //     // printFormattedJson(response.body);
+
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       Map<String, dynamic> responseMap = json.decode(response.body);
+  //       List<dynamic> services = responseMap['services']['data']
+  //       ;
+
+  //       logger.i(response.body);
+
+  //       List<Map<String, dynamic>> servicesJson = List<Map<String, dynamic>>.from(services.map((service) {
+  //         List<String> sideImages = [];
+  //         if (service['media'] != null) {
+  //           sideImages = List<String>.from(service['media'].map((image) {
+  //             return image['original_url'];
+  //           }));
+  //         }
+  //         List<Map<String, dynamic>> categories = List<Map<String, dynamic>>.from(service['service_categories'].map((category) {
+  //           String categoryId = category['category']['id'].toString();
+  //           String categoryName = category['category']['name'];
+
+  //           // Check if 'media' is not empty before accessing the URL
+  //           String iconUrl = '';
+  //           if (category['category']['media'] != null && category['category']['media'].isNotEmpty) {
+  //             iconUrl = category['category']['media'][0]['original_url'];
+  //           }
+
+  //           return {
+  //             'categoryId': categoryId,
+  //             'categoryName': categoryName,
+  //             'icon': iconUrl,
+  //           };
+  //         }));
+
+  //         return {
+  //           'name': service['name'],
+  //           'id': service['id'],
+  //           'mainImage': sideImages.isNotEmpty ? sideImages[0] : '',
+  //           'sideImages': sideImages,
+  //           'location': service['duration'],
+  //           'stars': service['accepted'],
+  //           'type': service['genre'],
+  //           'price': service['price'],
+  //           'categories': categories,
+  //           'discount_price': service['discount_price']
+  //         };
+  //       }));
+
+  //       Map<String, Map<String, dynamic>> categoryMap = {};
+
+  //       servicesJson.forEach((service) {
+  //         service['categories'].forEach((category) {
+  //           String categoryId = category['categoryId'].toString(); // Convert to string
+  //           if (!categoryMap.containsKey(categoryId)) {
+  //             categoryMap[categoryId] = {
+  //               'id': categoryId,
+  //               'label': category['categoryName'],
+  //               'icon': category['icon'], // Replace with the actual icon URL
+  //               'services': [],
+  //             };
+  //           }
+  //           categoryMap[categoryId]!['services'].add(service);
+  //         });
+  //       });
+
+  //       // Create the final options list
+  //       List<Map<String, dynamic>> optionsss = [];
+  //       categoryMap.forEach((categoryId, categoryOption) {
+  //         optionsss.add({
+  //           'id': categoryId,
+  //           'label': categoryOption['label'],
+  //           'icon': categoryOption['icon'],
+  //           'services': categoryOption['services'],
+  //         });
+  //       });
+
+  //       // Print the result for verification
+  //       /*  optionsss.forEach((option) {
+  //         print('Category: ${option['label']}');
+  //         option['services'].forEach((service) {
+  //           print('- Service: ${service['name']}');
+  //           // Add other service details as needed
+  //         });
+  //       });*/
+
+  //       // Set the options state
+  //       setState(() {
+  //         options = optionsss;
+  //       });
+  //     } else {
+  //       print('Failed to load data. Status code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching data: $e');
+  //   }
+  //   setState(() {});
+  // }
 
   late SharedPreferences _prefs;
   String selectedLanguage = '';
@@ -567,329 +686,397 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  Future<bool> _showExitDialog(BuildContext context) async {
+    return (await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              elevation: 10.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                side: const BorderSide(
+                  color: Color(0xFFD91A5B), // Border color
+                ),
+              ),
+              title: const Text(
+                'Voulez-vous quitter l\'application ?',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFFD91A5B)),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop(false); // Dismiss with 'Non'
+                        },
+                        // icon: const Icon(Icons.login), // 'Non' button icon
+                        label: const Text('Non'),
+                      ),
+                      const SizedBox(width: 15),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop(true); // Exit with 'Oui'
+                        },
+                        // icon: const Icon(Icons.person_add), // 'Oui' button icon
+                        label: const Text('Oui'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        )) ??
+        false; // Return false if the dialog is dismissed
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    int crossAxisCount = calculateCrossAxisCount(context);
+    // int crossAxisCount = calculateCrossAxisCount(context);
 
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 2,
-        title: Center(
-          child: Image.asset(
-            "Assets/1-removebg-preview.png",
-            height: 30,
-            color: const Color(0xFFD91A5B),
+    return WillPopScope(
+      onWillPop: () async {
+        bool exitConfirmed = await _showExitDialog(context);
+        return exitConfirmed;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 2,
+          title: Center(
+            child: Image.asset(
+              "Assets/1-removebg-preview.png",
+              height: 30,
+              color: const Color(0xFFD91A5B),
+            ),
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.menu,
-            color: Color(0xFFD91A5B),
-          ),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-        actions: [
-          IconButton(
+          leading: IconButton(
             icon: const Icon(
-              Icons.map,
+              Icons.menu,
               color: Color(0xFFD91A5B),
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MyMap()),
-              );
+              _scaffoldKey.currentState?.openDrawer();
             },
           ),
-        ],
-        iconTheme: const IconThemeData(color: Color(0xFFD91A5B)),
-      ),
-      drawer: CustomDrawer(
-          currentPage: selectedLanguage == "English"
-              ? translate('Accueil', drawer_English)
-              : selectedLanguage == "Arabic"
-                  ? translate('Accueil', drawer_Arabic)
-                  : 'Accueil'),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  //   color: Color(0xFFD91A5B),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20.0),
-                    bottomRight: Radius.circular(20.0),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: size.height * 0.25,
-                      width: size.width * 0.98,
-                      child: Swiper(
-                        controller: _swiperController,
-                        itemBuilder: (BuildContext context, int index) {
-                          return SCrol(context)[index];
-                        },
-                        itemCount: images.length,
-                        pagination: const SwiperPagination(
-                          builder: DotSwiperPaginationBuilder(
-                            color: Color.fromARGB(255, 228, 161, 183),
-                            activeColor: Color(0xFFD91A5B),
-                            activeSize: 10.0,
-                            size: 8.0,
-                          ),
-                        ),
-                        autoplay: true, // Auto-swipe enabled
-                        duration: 500, // Auto-swipe duration in milliseconds
-                        /*  control: SwiperControl(
-                          iconNext: Icons.arrow_forward,
-                          iconPrevious: Icons.arrow_back,
-                          size: 30.0,
-                          color: Colors.white,
-                        ),*/
-                      ),
+          actions: [
+            IconButton(
+              icon: const Icon(
+                Icons.map,
+                color: Color(0xFFD91A5B),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyMap()),
+                );
+              },
+            ),
+          ],
+          iconTheme: const IconThemeData(color: Color(0xFFD91A5B)),
+        ),
+        drawer: CustomDrawer(
+            currentPage: selectedLanguage == "English"
+                ? translate('Accueil', drawer_English)
+                : selectedLanguage == "Arabic"
+                    ? translate('Accueil', drawer_Arabic)
+                    : 'Accueil'),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    //   color: Color(0xFFD91A5B),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20.0),
+                      bottomRight: Radius.circular(20.0),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: (size.width * 0.9) - 100,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            border: Border.all(
-                              color: const Color(0xFFD91A5B), // Set border color
-                              width: 1.0, // Set border width
+                  ),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: size.height * 0.25,
+                        width: size.width * 0.98,
+                        child: Swiper(
+                          controller: _swiperController,
+                          itemBuilder: (BuildContext context, int index) {
+                            return SCrol(context)[index];
+                          },
+                          itemCount: images.length,
+                          pagination: const SwiperPagination(
+                            builder: DotSwiperPaginationBuilder(
+                              color: Color.fromARGB(255, 228, 161, 183),
+                              activeColor: Color(0xFFD91A5B),
+                              activeSize: 10.0,
+                              size: 8.0,
                             ),
                           ),
-                          child: TextField(
-                            controller: _controllertext,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: selectedLanguage == "English"
-                                  ? translate('Recherche...', home_English)
-                                  : selectedLanguage == "Arabic"
-                                      ? translate('Recherche...', home_Arabic)
-                                      : 'Recherche...',
-                              hintStyle: TextStyle(
-                                color: Colors.black.withOpacity(0.6),
+                          autoplay: true, // Auto-swipe enabled
+                          duration: 500, // Auto-swipe duration in milliseconds
+                          /*  control: SwiperControl(
+                            iconNext: Icons.arrow_forward,
+                            iconPrevious: Icons.arrow_back,
+                            size: 30.0,
+                            color: Colors.white,
+                          ),*/
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: (size.width * 0.9) - 100,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(
+                                color: const Color(0xFFD91A5B), // Set border color
+                                width: 1.0, // Set border width
                               ),
-                              prefixIcon: const Icon(Icons.search, color: Color(0xFFD91A5B)),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.clear, color: Color(0xFFD91A5B)),
-                                onPressed: () {
+                            ),
+                            child: TextField(
+                              controller: _controllertext,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                hintText: selectedLanguage == "English"
+                                    ? translate('Recherche...', home_English)
+                                    : selectedLanguage == "Arabic"
+                                        ? translate('Recherche...', home_Arabic)
+                                        : 'Recherche...',
+                                hintStyle: TextStyle(
+                                  color: Colors.black.withOpacity(0.6),
+                                ),
+                                prefixIcon: const Icon(Icons.search, color: Color(0xFFD91A5B)),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.clear, color: Color(0xFFD91A5B)),
+                                  onPressed: () {
+                                    setState(() {
+                                      _controllertext.clear();
+                                    });
+                                  },
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(color: Colors.white, width: 2.0),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(color: Colors.white, width: 1.0),
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
+                              ),
+                              onChanged: (value) {
+                                // Add your search logic here
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SearchQueries(
+                                          Text: removeLastSpace(_controllertext.text),
+                                        )),
+                              );
+                            },
+                            child: Text(selectedLanguage == "English"
+                                ? translate('Rechercher', home_English)
+                                : selectedLanguage == "Arabic"
+                                    ? translate('Rechercher', home_Arabic)
+                                    : 'Rechercher'),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.only(left: 12),
+                        height: 40,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: List.generate(
+                            options.length,
+                            (index) => Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: ChoiceChip(
+                                label: Text(
+                                  options[index]['label'],
+                                  style: TextStyle(
+                                    color: !selectedOptions.contains(options[index]['label']) ? Colors.black : Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                selected: selectedOptions.contains(options[index]['label']),
+                                onSelected: (bool selected) {
                                   setState(() {
-                                    _controllertext.clear();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => FilteredGridPage(
+                                          Cat_Id: options[index]['id'].toString(),
+                                          title: options[index]['label'],
+                                        ),
+                                      ),
+                                    );
                                   });
                                 },
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Colors.white, width: 2.0),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(color: Colors.white, width: 1.0),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(vertical: 8.0),
-                            ),
-                            onChanged: (value) {
-                              // Add your search logic here
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SearchQueries(
-                                        Text: removeLastSpace(_controllertext.text),
-                                      )),
-                            );
-                          },
-                          child: Text(selectedLanguage == "English"
-                              ? translate('Rechercher', home_English)
-                              : selectedLanguage == "Arabic"
-                                  ? translate('Rechercher', home_Arabic)
-                                  : 'Rechercher'),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.only(left: 12),
-                      height: 40,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: List.generate(
-                          options.length,
-                          (index) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: ChoiceChip(
-                              label: Text(
-                                options[index]['label'],
-                                style: TextStyle(
-                                  color: !selectedOptions.contains(options[index]['label']) ? Colors.black : Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              selected: selectedOptions.contains(options[index]['label']),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FilteredGridPage(
-                                        Cat_Id: options[index]['id'].toString(),
-                                        title: options[index]['label'],
-                                      ),
+                                avatar: CircleAvatar(
+                                  radius: 20.0,
+                                  backgroundColor: !selectedOptions.contains(options[index]['label']) ? Colors.transparent : Colors.transparent,
+                                  child: FractionallySizedBox(
+                                    widthFactor: 0.7,
+                                    heightFactor: 0.7,
+                                    child: Image.network(
+                                      options[index]['icon'],
+                                      color: selectedOptions.contains(options[index]['label']) ? Colors.white : Colors.pink,
                                     ),
-                                  );
-                                });
-                              },
-                              avatar: CircleAvatar(
-                                radius: 20.0,
-                                backgroundColor: !selectedOptions.contains(options[index]['label']) ? Colors.transparent : Colors.transparent,
-                                child: FractionallySizedBox(
-                                  widthFactor: 0.7,
-                                  heightFactor: 0.7,
-                                  child: Image.network(
-                                    options[index]['icon'],
-                                    color: selectedOptions.contains(options[index]['label']) ? Colors.white : Colors.pink,
+                                  ),
+                                ),
+                                elevation: !selectedOptions.contains(options[index]['label']) ? 4.0 : 0.0,
+                                backgroundColor: selectedOptions.contains(options[index]['label']) ? const Color(0xFFD91A5B) : Colors.white,
+                                selectedColor: const Color(0xFFD91A5B),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  side: const BorderSide(
+                                    color: Color(0xFFD91A5B),
+                                    width: 1.5,
                                   ),
                                 ),
                               ),
-                              elevation: !selectedOptions.contains(options[index]['label']) ? 4.0 : 0.0,
-                              backgroundColor: selectedOptions.contains(options[index]['label']) ? const Color(0xFFD91A5B) : Colors.white,
-                              selectedColor: const Color(0xFFD91A5B),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                side: const BorderSide(
-                                  color: Color(0xFFD91A5B),
-                                  width: 1.5,
-                                ),
-                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                  ],
+                      const SizedBox(height: 10),
+                    ],
+                  ),
                 ),
-              ),
-              /*    Container(
-                height: 5,
-                width: double.infinity,
-                color: Colors.grey,
-              ),*/
-              const SizedBox(height: 20),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ExpandableListWidget(
-                      isNew: true,
-                      title: "Nouveaux",
-                      places: placeses,
-                    ),
-                    ExpandableListWidget(
-                      isNew: false,
-                      title: "Recommander",
-                      places: Recomanded,
-                    ),
-                    /*   */
-                  ],
-                ),
-              ),
-              SingleChildScrollView(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                /*    Container(
+                  height: 5,
+                  width: double.infinity,
+                  color: Colors.grey,
+                ),*/
+                const SizedBox(height: 20),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
-                    children: options.map((option) {
-                      List<PLaces2> services = (option['services'] as List<dynamic>).map((service) {
-                        double price = (service['price'] is String)
-                            ? double.parse(service['price'])
-                            : (service['price'] is int)
-                                ? (service['price'] as int).toDouble()
-                                : service['price'] ?? 0.0;
-
-                        return PLaces2(
-                          promo: service['discount_price'] ?? '0',
-                          name: service['name'].toString(),
-                          id: service['id'],
-                          mainImage: service['mainImage'],
-                          sideImages: List<String>.from(service['sideImages']),
-                          location: service['location'],
-                          stars: double.parse(service['stars'].toString()),
-                          type: service['type'],
-                          Price: price.toString(),
-                        );
-                      }).toList();
-
-                      return ServiceView(
-                        Cat_Id: option['id'].toString(),
-                        icon: option['icon'],
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ExpandableListWidget(
+                        isNew: true,
+                        title: "Nouveaux",
+                        places: placeses,
+                      ),
+                      ExpandableListWidget(
                         isNew: false,
-                        title: option['label'],
-                        places: services,
-                      );
-                    }).toList(),
+                        title: "Recommander",
+                        places: Recomanded,
+                      ),
+                      /*   */
+                    ],
                   ),
                 ),
-              ),
-              const Divider(
-                thickness: 1,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                margin: const EdgeInsets.only(left: 10.0),
-                child: const Text(
-                  'Explorer avec les villes',
-                  style: TextStyle(
-                    color: Color(0xFFD91A5B),
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'YourCustomFont', // Replace with your custom font
+                SingleChildScrollView(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+                    child: Column(
+                      children: [
+                        Column(
+                          children: options.map((option) {
+                            List<PLaces2> services = (option['services'] as List<dynamic>).map((service) {
+                              double price = (service['price'] is String)
+                                  ? double.parse(service['price'])
+                                  : (service['price'] is int)
+                                      ? (service['price'] as int).toDouble()
+                                      : service['price'] ?? 0.0;
+
+                              return PLaces2(
+                                promo: service['discount_price'] ?? '0',
+                                name: service['name'].toString(),
+                                id: service['id'],
+                                mainImage: service['mainImage'],
+                                sideImages: List<String>.from(service['sideImages']),
+                                location: service['location'],
+                                stars: double.parse(service['stars'].toString()),
+                                type: service['type'],
+                                Price: price.toString(),
+                              );
+                            }).toList();
+
+                            return Column(
+                              children: [
+                                ServiceView(
+                                  Cat_Id: option['id'].toString(),
+                                  icon: option['icon'],
+                                  isNew: false,
+                                  title: option['label'],
+                                  places: services,
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                        if (isLoading)
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8.0),
-              Container(
-                height: 120.0,
-                padding: const EdgeInsets.fromLTRB(16.0, 5.0, 5.0, 5.0),
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: Allcities.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: Container(
-                          width: 150,
-                          child: CityCart(city: Allcities[index]),
-                        ));
-                  },
+                const Divider(
+                  thickness: 1,
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  margin: const EdgeInsets.only(left: 10.0),
+                  child: const Text(
+                    'Explorer avec les villes',
+                    style: TextStyle(
+                      color: Color(0xFFD91A5B),
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'YourCustomFont', // Replace with your custom font
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                Container(
+                  height: 120.0,
+                  padding: const EdgeInsets.fromLTRB(16.0, 5.0, 5.0, 5.0),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: Allcities.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Container(
+                            width: 150,
+                            child: CityCart(city: Allcities[index]),
+                          ));
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

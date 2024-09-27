@@ -37,7 +37,7 @@
             android:value="2" />
         <meta-data 
             android:name="com.google.android.gms.auth.api.signin.APP_ID" 
-            android:value="132250041045-uutcj8foal79dkv9neijdcrtg6lo88uf.apps.googleusercontent.com"/>
+            android:value="812802099483-grf7mn9rej6jubnju1cdqs5bmf3n48er.apps.googleusercontent.com"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDqedUH6w4XaSmc3BoSUmOy3xXhv8XZMTE"/>
@@ -56,3 +56,4 @@
         </intent>
     </queries>
 </manifest>
+

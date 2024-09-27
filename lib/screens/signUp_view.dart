@@ -3,12 +3,16 @@ import 'dart:convert';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/arrays.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spa/page_transltion/signup_tr.dart';
 import 'package:spa/screens/home_page.dart';
 import 'package:spa/screens/login_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:spa/constents.dart';
+import 'package:spa/splashScreen/api_service.dart';
+import 'package:spa/splashScreen/auth_service.dart';
+import 'package:spa/splashScreen/firebase_service.dart';
 
 class SignUpView extends StatefulWidget {
   final bool comes;
@@ -28,6 +32,17 @@ class _SignUpViewState extends State<SignUpView> {
   final _formKey = GlobalKey<FormState>();
   late SharedPreferences _prefs;
   String selectedLanguage = '';
+
+
+
+
+  final ApiService _apiService = ApiService(); // Create instance of ApiService
+
+  final Logger logger = Logger(); // Initialize the logger
+  late FirebaseService firebaseService; // Declare FirebaseService
+  late AuthService authService;
+
+
   Future<void> _loadLanguage() async {
     _prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -51,6 +66,10 @@ class _SignUpViewState extends State<SignUpView> {
   void initState() {
     super.initState();
     _loadLanguage();
+
+    firebaseService = FirebaseService(); // Initialize FirebaseService
+    authService = AuthService(); // Initialize AuthService
+    firebaseService.printFCMToken(); // Get and print FCM token
   }
 
   @override
@@ -542,6 +561,7 @@ class _SignUpViewState extends State<SignUpView> {
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
             );
+            await _apiService.getFCMToken();
           }
         } else {
           ElegantNotification.error(

@@ -12,6 +12,7 @@ import 'package:spa/Models/Staff.dart';
 import 'package:spa/page_transltion/Reservation_tr.dart';
 import 'package:spa/screens/boocked.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:spa/screens/login_view.dart';
 
 class Book extends StatefulWidget {
   final String serviceId;
@@ -57,7 +58,6 @@ class _BookState extends State<Book> {
   }
 
   getdata() async {
-    print(widget.serviceId);
     try {
       final response = await http
           .get(Uri.parse('$domain2/api/getServiceById/${widget.serviceId}'));
@@ -67,8 +67,7 @@ class _BookState extends State<Book> {
 
         if (data['status'] == true && data['service'] != null) {
           Map<String, dynamic> serviceData = data['service'];
-          print(
-              "saaaaaaaaaaaaaaaaaaaaaaaa" + serviceData['salon_id'].toString());
+          
           setState(() {
             home = serviceData['enable_at_customer_address'].toString() == '1';
             at_salon = serviceData['enable_booking_at_salon'].toString() == '1';
@@ -153,11 +152,8 @@ class _BookState extends State<Book> {
           if (dateData is List) {
             // Assuming 'date' contains a list of date strings
             staffAvailabilityDates = List<String>.from(dateData);
-            print("service " + widget.serviceId);
-            print("staff " + staffId);
-            print(staffAvailabilityDates);
+            
           } else if (dateData is Map) {
-            print(staffAvailabilityDates);
             Map<String, String> dateMap = Map<String, String>.from(dateData);
             staffAvailabilityDates = dateMap.values.toList();
           } else {
@@ -225,7 +221,7 @@ class _BookState extends State<Book> {
                 }
               } catch (e) {
                 // Handle the error (print a message, log it, etc.)
-                print('Error parsing hour: $hour');
+              
                 return false; // Assume invalid dates should be filtered out
               }
             }).toList();
@@ -247,9 +243,8 @@ class _BookState extends State<Book> {
           }
 
           setState(() {});
-          print("aaaaaa" + staffAvailabilityhours.toString());
+          
         } else {
-          print('Error: Invalid response structure ${response.body}');
         }
       } else {
         print('Error: ${response.statusCode}');
@@ -758,9 +753,9 @@ class _BookState extends State<Book> {
                                   "phone_number": phoneController.text,
                                   "address": adress_home,
                                 };
-                                print('Booking Data:');
+                                logger.i('Booking Data:');
                                 bookingData.forEach((key, value) {
-                                  print('$key: $value');
+                                 
                                 });
                                 final response = await http.post(
                                   Uri.parse('$domain2/api/storeBooking'),

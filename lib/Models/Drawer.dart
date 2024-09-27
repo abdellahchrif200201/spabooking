@@ -26,6 +26,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
   String selectedLanguage = '';
   String name = '';
   String email = '';
+  String image = '';
   bool loggedIn = false;
   Future<void> _loadLanguage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -36,6 +37,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
     setState(() {
       name = prefs.getString('name') ?? '';
       email = prefs.getString('email') ?? '';
+      image = prefs.getString('image') ?? '';
       selectedLanguage = prefs.getString('selectedLanguage') ?? 'Frensh';
     });
   }
@@ -97,7 +99,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     radius: 40,
                     backgroundColor: const Color(0xFFD91A5B),
                     child: ClipOval(
-                      child: Image.network(
+                      child: image.isNotEmpty ? Image.network(
+                              image,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ) : Image.network(
                         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx3WjXK1quQwF5dl6PsQFSQOa1WJrl-45LcODj0k7w5A&s",
                         width: 80,
                         height: 80,

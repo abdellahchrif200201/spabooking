@@ -11,6 +11,9 @@ import 'package:spa/constents.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:elegant_notification/elegant_notification.dart';
 import 'package:elegant_notification/resources/arrays.dart';
+import 'package:spa/splashScreen/api_service.dart';
+import 'package:spa/splashScreen/auth_service.dart';
+import 'package:spa/splashScreen/firebase_service.dart';
 
 var logger = Logger();
 
@@ -34,6 +37,12 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final ApiService _apiService = ApiService(); // Create instance of ApiService
+
+  final Logger logger = Logger(); // Initialize the logger
+  late FirebaseService firebaseService; // Declare FirebaseService
+  late AuthService authService;
+
   bool rememberMe = false;
   final _formKey = GlobalKey<FormState>();
 
@@ -58,6 +67,12 @@ class _LoginViewState extends State<LoginView> {
   @override
   void initState() {
     super.initState();
+    // FirebaseService();
+
+    firebaseService = FirebaseService(); // Initialize FirebaseService
+    authService = AuthService(); // Initialize AuthService
+    firebaseService.printFCMToken(); // Get and print FCM token
+
     _loadLanguage();
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       setState(() {
@@ -65,7 +80,14 @@ class _LoginViewState extends State<LoginView> {
         print(_currentUser);
       });
     });
+    // getTokenFcm();
   }
+
+  // void getTokenFcm() async{
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final test = prefs.getString("test");
+  //   logger.e(test);
+  // }
 
   Future<void> _handleSignIn() async {
     try {
@@ -98,8 +120,7 @@ class _LoginViewState extends State<LoginView> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: SafeArea(
         child: Scaffold(
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           floatingActionButton: GestureDetector(
             onTap: () {
               nameController.clear();
@@ -116,33 +137,31 @@ class _LoginViewState extends State<LoginView> {
             },
             child: Container(
               width: 280,
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 vertical: 10,
               ),
-              margin: EdgeInsets.only(
+              margin: const EdgeInsets.only(
                 bottom: 10,
               ),
               decoration: BoxDecoration(
-                color: Color(0xFFD91A5B).withOpacity(1),
+                color: const Color(0xFFD91A5B).withOpacity(1),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.person,
                     color: Colors.white,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     (selectedLanguage == "English"
-                        ? translate(
-                            "Connexion en tant qu'invité", login_english)
+                        ? translate("Connexion en tant qu'invité", login_english)
                         : selectedLanguage == "Arabic"
-                            ? translate(
-                                "Connexion en tant qu'invité", login_arabic)
+                            ? translate("Connexion en tant qu'invité", login_arabic)
                             : "Connexion en tant qu'invité" + " ->"),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -181,8 +200,7 @@ class _LoginViewState extends State<LoginView> {
             child: Container(
               height: size.height * 0.3,
               width: double.infinity,
-              color:
-                  const Color(0xFFD91A5B), // Replace with your background color
+              color: const Color(0xFFD91A5B), // Replace with your background color
               child: Center(
                 child: ClipRRect(
                   borderRadius: const BorderRadius.only(
@@ -190,9 +208,7 @@ class _LoginViewState extends State<LoginView> {
                     bottomRight: Radius.circular(15.0),
                   ),
                   child: Transform.rotate(
-                    angle: 90 *
-                        (3.14159265358979323846 /
-                            180), // Convert degrees to radians
+                    angle: 90 * (3.14159265358979323846 / 180), // Convert degrees to radians
                     child: Image.asset(
                       "Assets/Screenshot_2023-11-21_213101-removebg-preview.png",
                       width: MediaQuery.of(context).size.width * 0.3,
@@ -235,8 +251,7 @@ class _LoginViewState extends State<LoginView> {
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment:
-          size.width > 600 ? MainAxisAlignment.center : MainAxisAlignment.start,
+      mainAxisAlignment: size.width > 600 ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
         size.width > 600
             ? Container()
@@ -278,14 +293,14 @@ class _LoginViewState extends State<LoginView> {
         ),
         Center(
             child: Padding(
-          padding: EdgeInsets.only(left: 20.0),
+          padding: const EdgeInsets.only(left: 20.0),
           child: Text(
             selectedLanguage == "English"
                 ? translate('Se connecter', login_english)
                 : selectedLanguage == "Arabic"
                     ? translate('Se connecter', login_arabic)
                     : 'Se connecter',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         )),
         const SizedBox(
@@ -293,16 +308,14 @@ class _LoginViewState extends State<LoginView> {
         ),
         Center(
             child: Padding(
-          padding: EdgeInsets.only(left: 20.0),
+          padding: const EdgeInsets.only(left: 20.0),
           child: Text(
             selectedLanguage == "English"
-                ? translate('Connectez-vous pour continuer sur SpaBookin',
-                    login_english)
+                ? translate('Connectez-vous pour continuer sur SpaBookin', login_english)
                 : selectedLanguage == "Arabic"
-                    ? translate('Connectez-vous pour continuer sur SpaBookin',
-                        login_arabic)
+                    ? translate('Connectez-vous pour continuer sur SpaBookin', login_arabic)
                     : 'Connectez-vous pour continuer sur SpaBookin',
-            style: TextStyle(fontSize: 12),
+            style: const TextStyle(fontSize: 12),
           ),
         )),
         SizedBox(
@@ -319,15 +332,14 @@ class _LoginViewState extends State<LoginView> {
                 TextFormField(
                   style: const TextStyle(fontSize: 16),
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person),
+                    prefixIcon: const Icon(Icons.person),
                     hintText: selectedLanguage == "English"
                         ? translate("Nom d'utilisateur ou Gmail", login_english)
                         : selectedLanguage == "Arabic"
-                            ? translate(
-                                "Nom d'utilisateur ou Gmail", login_arabic)
+                            ? translate("Nom d'utilisateur ou Gmail", login_arabic)
                             : "Nom d'utilisateur ou Gmail",
-                    contentPadding: EdgeInsets.all(16),
-                    border: OutlineInputBorder(
+                    contentPadding: const EdgeInsets.all(16),
+                    border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(15)),
                     ),
                   ),
@@ -388,8 +400,7 @@ class _LoginViewState extends State<LoginView> {
                 Row(
                   children: [
                     Checkbox(
-                      value:
-                          rememberMe, // Add a boolean variable for state management
+                      value: rememberMe, // Add a boolean variable for state management
                       onChanged: (value) {
                         // Implement logic for handling "Remember me"
                         setState(() {
@@ -403,7 +414,7 @@ class _LoginViewState extends State<LoginView> {
                           : selectedLanguage == "Arabic"
                               ? translate('Se souvenir de moi', login_arabic)
                               : 'Se souvenir de moi',
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
@@ -418,10 +429,9 @@ class _LoginViewState extends State<LoginView> {
                         selectedLanguage == "English"
                             ? translate('Mot de passe oublié ?', login_english)
                             : selectedLanguage == "Arabic"
-                                ? translate(
-                                    'Mot de passe oublié ?', login_arabic)
+                                ? translate('Mot de passe oublié ?', login_arabic)
                                 : 'Mot de passe oublié ?',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Color(0xFFD91A5B),
                           fontWeight: FontWeight.bold,
@@ -435,15 +445,13 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(const Color(0xFFD91A5B)),
+                    backgroundColor: MaterialStateProperty.all(const Color(0xFFD91A5B)),
                     shape: MaterialStateProperty.all(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    minimumSize: MaterialStateProperty.all(
-                        const Size(double.infinity, 50)),
+                    minimumSize: MaterialStateProperty.all(const Size(double.infinity, 50)),
                   ),
                   onPressed: () async {
                     /*  Navigator.pushReplacement(
@@ -472,24 +480,68 @@ class _LoginViewState extends State<LoginView> {
                         };
                       }
 
-                      print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
                       try {
-                        var response = await http.post(Uri.parse(apiUrl),
-                            body: jsonEncode(body),
-                            headers: {"Content-Type": "application/json"});
+                        var response = await http.post(Uri.parse(apiUrl), body: jsonEncode(body), headers: {"Content-Type": "application/json"});
                         // Process the response
 
-                        print(response.statusCode);
-                        if (response.statusCode == 200 ||
-                            response.statusCode == 201) {
-                          final Map<String, dynamic> data =
-                              json.decode(response.body);
+                        logger.i(response.statusCode);
+                        if (response.statusCode == 200 || response.statusCode == 201) {
+                          print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+                          logger.d(response.body);
+
+                          final Map<String, dynamic> data = json.decode(response.body);
+                          // if (data['data']['role'] != "Spa owner") {
+                          //   String tokenFromResponse = data['token'];
+                          //   String nameFromResponse = data['data']['name'];
+                          //   String emailFromResponse = data['data']['email'];
+                          //   String phoneFromResponse = data['data']['phone'];
+                          //   String image = data['data']['media']['original_url'];
+                          //   String id = data['data']['id'].toString();
+
+                          //   SharedPreferences prefs = await SharedPreferences.getInstance();
+
+                          //   prefs.setString('authToken', tokenFromResponse);
+                          //   prefs.setString('name', nameFromResponse);
+                          //   prefs.setString('email', emailFromResponse);
+                          //   prefs.setString('phone', phoneFromResponse);
+                          //   prefs.setString('id', id);
+                          //   prefs.setString('password', passwordController.text);
+                          //   prefs.setString('image', image);
+                          //   if (widget.comes) {
+                          //     Navigator.pop(context);
+                          //   } else {
+                          //     Navigator.pushReplacement(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //           builder: (context) => HomePage()),
+                          //     );
+                          //   }
+                          // } else {
+                          //   ElegantNotification.error(
+                          //     animationDuration:
+                          //         const Duration(milliseconds: 600),
+                          //     width: 360,
+                          //     position: Alignment.bottomCenter,
+                          //     animation: AnimationType.fromBottom,
+                          //     title: const Text('Error'),
+                          //     description:
+                          //         const Text("votre role n'est pas compatible"),
+                          //     onDismiss: () {},
+                          //   ).show(context);
+                          // }
                           if (data['data']['role'] != "Spa owner") {
                             String tokenFromResponse = data['token'];
                             String nameFromResponse = data['data']['name'];
                             String emailFromResponse = data['data']['email'];
                             String phoneFromResponse = data['data']['phone'];
-                            String image = data['data']['media']['original_url'];
+                            String? image = '';
+
+                            // Check if 'media' and 'original_url' exist
+                            if (data['data']['media'] != null && data['data']['media']['original_url'] != null) {
+                              image = data['data']['media']['original_url'];
+                            }
+
                             String id = data['data']['id'].toString();
 
                             SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -500,39 +552,30 @@ class _LoginViewState extends State<LoginView> {
                             prefs.setString('phone', phoneFromResponse);
                             prefs.setString('id', id);
                             prefs.setString('password', passwordController.text);
-                            prefs.setString('image', image);
+
+                            // Save the image only if it exists
+                            if (image != null && image.isNotEmpty) {
+                              prefs.setString('image', image);
+                            }
+
                             if (widget.comes) {
                               Navigator.pop(context);
                             } else {
                               Navigator.pushReplacement(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => HomePage()),
+                                MaterialPageRoute(builder: (context) => HomePage()),
                               );
+                              await _apiService.getFCMToken();
                             }
-                          } else {
-                            ElegantNotification.error(
-                              animationDuration:
-                                  const Duration(milliseconds: 600),
-                              width: 360,
-                              position: Alignment.bottomCenter,
-                              animation: AnimationType.fromBottom,
-                              title: const Text('Error'),
-                              description:
-                                  const Text("votre role n'est pas compatible"),
-                              onDismiss: () {},
-                            ).show(context);
                           }
                         } else {
                           ElegantNotification.error(
-                            animationDuration:
-                                const Duration(milliseconds: 600),
+                            animationDuration: const Duration(milliseconds: 600),
                             width: 360,
                             position: Alignment.bottomCenter,
                             animation: AnimationType.fromBottom,
                             title: const Text('Error'),
-                            description: const Text(
-                                'Échec de la connexion, identifiant ou mot de passe incorrect'),
+                            description: const Text('Échec de la connexion, identifiant ou mot de passe incorrect'),
                             onDismiss: () {},
                           ).show(context);
                         }
@@ -548,7 +591,7 @@ class _LoginViewState extends State<LoginView> {
                         : selectedLanguage == "Arabic"
                             ? translate('Connexion', login_arabic)
                             : 'Connexion',
-                    style: TextStyle(fontSize: 18),
+                    style: const TextStyle(fontSize: 18),
                   ),
                 ),
                 SizedBox(
@@ -564,19 +607,18 @@ class _LoginViewState extends State<LoginView> {
 
                       // Wait until _currentUser is not null
                       while (_currentUser == null) {
-                        await Future.delayed(Duration(
-                            milliseconds: 100)); // Check every 100 milliseconds
+                        await Future.delayed(const Duration(milliseconds: 100)); // Check every 100 milliseconds
                       }
 
                       String name = "Unknown";
                       String email = "Unknown";
+                      // string image = ''
 
                       // Print current user information
                       print(_currentUser);
 
                       // Check if user is signed in
-                      if (_currentUser != null &&
-                          _currentUser!.email.isNotEmpty) {
+                      if (_currentUser != null && _currentUser!.email.isNotEmpty) {
                         name = _currentUser!.displayName ?? "Unknown";
                         email = _currentUser!.email;
                       }
@@ -597,14 +639,17 @@ class _LoginViewState extends State<LoginView> {
                         headers: {"Content-Type": "application/json"},
                       );
 
-                      if (response.statusCode == 200 ||
-                          response.statusCode == 201) {
-                        final Map<String, dynamic> data =json.decode(response.body);
+                      if (response.statusCode == 200 || response.statusCode == 201) {
+                        final Map<String, dynamic> data = json.decode(response.body);
+
                         logger.d('Token: ${data['token']}');
                         logger.d('Name: ${data['data']['name']}');
                         logger.d('Email: ${data['data']['email']}');
                         logger.d('Phone: ${data['data']['phone']}');
                         logger.d('ID: ${data['data']['id'].toString()}');
+
+
+                        logger.d(response.body);
 
                         // Save the data in SharedPreferences
                         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -622,6 +667,7 @@ class _LoginViewState extends State<LoginView> {
                             context,
                             MaterialPageRoute(builder: (context) => HomePage()),
                           );
+                          await _apiService.getFCMToken();
                         }
                       } else {
                         logger.e(response.body);
@@ -630,7 +676,7 @@ class _LoginViewState extends State<LoginView> {
                           width: 360,
                           position: Alignment.bottomCenter,
                           animation: AnimationType.fromBottom,
-                          title: Text('Errorssssss'),
+                          title: const Text('Errorssssss'),
                           description: Text(response.body),
                           onDismiss: () {},
                         ).show(context);
@@ -642,7 +688,7 @@ class _LoginViewState extends State<LoginView> {
                         width: 360,
                         position: Alignment.bottomCenter,
                         animation: AnimationType.fromBottom,
-                        title: Text('Error'),
+                        title: const Text('Error'),
                         description: Text(error.toString()),
                         onDismiss: () {},
                       ).show(context);
@@ -670,7 +716,7 @@ class _LoginViewState extends State<LoginView> {
                             : selectedLanguage == "Arabic"
                                 ? translate('Sign in with Google', login_arabic)
                                 : 'Se connecter avec Google',
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ],
                   ),
@@ -688,29 +734,21 @@ class _LoginViewState extends State<LoginView> {
                     simpleUIController.isObscure.value = true;
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => SignUpView(comes: false)),
+                      MaterialPageRoute(builder: (context) => SignUpView(comes: false)),
                     );
                   },
                   child: RichText(
                     text: TextSpan(
                       text: selectedLanguage == "English"
-                          ? translate(
-                              "Vous n'avez pas de compte ?", login_english)
+                          ? translate("Vous n'avez pas de compte ?", login_english)
                           : selectedLanguage == "Arabic"
-                              ? translate(
-                                  "Vous n'avez pas de compte ?", login_arabic)
+                              ? translate("Vous n'avez pas de compte ?", login_arabic)
                               : "Vous n'avez pas de compte ?",
-                      style: TextStyle(fontSize: 16, color: Colors.black),
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
                       children: [
                         TextSpan(
-                          text: " " +
-                              (selectedLanguage == "English"
-                                  ? translate("Inscription", login_english)
-                                  : selectedLanguage == "Arabic"
-                                      ? translate("Inscription", login_arabic)
-                                      : "Inscription"),
-                          style: TextStyle(
+                          text: " ${selectedLanguage == "English" ? translate("Inscription", login_english) : selectedLanguage == "Arabic" ? translate("Inscription", login_arabic) : "Inscription"}",
+                          style: const TextStyle(
                             fontSize: 16,
                             color: Color(0xFFD91A5B),
                             fontWeight: FontWeight.bold,

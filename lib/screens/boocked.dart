@@ -42,16 +42,7 @@ class _BookedState extends State<Booked> {
           print(localId);
           List<Reservation> latestPlaces = salons.map((salon) {
             // Print the data before creating Reservation object
-            print('Salon ID: ${salon['id']}');
-            print('Salon Name: ${salon['service']['salon']['name']}');
-            print('User Name: ${salon['user']['name']}');
-            print('Booking Status: ${salon['booking_status']}');
-            print('Date: ${salon['created_at']}');
-            print('Description: ${salon['service']['description']}');
-            print('Price: ${salon['price']}');
-            print('Reservation Number: ${salon['id']}');
-            print('Payment Status: ${salon['payment_status']}');
-            print('-----------------------------------------');
+            
             return Reservation(
               promo: salon['service']['discount_price'] ?? '0',
               SalonTelephone:
@@ -83,7 +74,6 @@ class _BookedState extends State<Booked> {
           });
 
           // Optionally, you can print or use the latest bookings
-          print('Latest 8 bookings: ${placeses_filtred.length}');
         } else {
           print('Error: ${response.statusCode}');
         }

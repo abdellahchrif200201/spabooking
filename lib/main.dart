@@ -1,16 +1,15 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:logger/logger.dart';
-import 'package:spa/notification/notification.dart';
 // import 'package:spa/screens/splash_screen.dart';
 import 'package:intl/date_symbol_data_local.dart'; // Import this package
 import 'package:country_code_picker/country_code_picker.dart';
 // import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:spa/screens/splash_screen.dart';
 import 'package:spa/splashScreen/firebase_service.dart';
 import 'package:spa/splashScreen/splash_screen.dart';
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
 void main() async {
@@ -23,12 +22,11 @@ void main() async {
   await initializeDateFormatting('fr_FR', null);
 
   // Initialize local notifications
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher'); // Use your app icon
-  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
-
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+   const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+ await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   // Optionally, you can create an instance of your FirebaseService here if needed
   FirebaseService();
@@ -37,7 +35,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -45,82 +43,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'SpaBooking',
+      navigatorKey: navigatorKey,
       theme: ThemeData(
         primarySwatch: Colors.pink,
         useMaterial3: false,
       ),
       debugShowCheckedModeBanner: false,
       supportedLocales: const [
-        // Locale("af"),
-        // Locale("am"),
         Locale("ar"),
-        // Locale("az"),
-        // Locale("be"),
-        // Locale("bg"),
-        // Locale("bn"),
-        // Locale("bs"),
-        // Locale("ca"),
-        // Locale("cs"),
-        // Locale("da"),
-        // Locale("de"),
-        // Locale("el"),
         Locale("en"),
-        // Locale("es"),
-        // Locale("et"),
-        // Locale("fa"),
-        // Locale("fi"),
         Locale("fr"),
-        // Locale("gl"),
-        // Locale("ha"),
-        // Locale("he"),
-        // Locale("hi"),
-        // Locale("hr"),
-        // Locale("hu"),
-        // Locale("hy"),
-        // Locale("id"),
-        // Locale("is"),
-        // Locale("it"),
-        // Locale("ja"),
-        // Locale("ka"),
-        // Locale("kk"),
-        // Locale("km"),
-        // Locale("ko"),
-        // Locale("ku"),
-        // Locale("ky"),
-        // Locale("lt"),
-        // Locale("lv"),
-        // Locale("mk"),
-        // Locale("ml"),
-        // Locale("mn"),
-        // Locale("ms"),
-        // Locale("nb"),
-        // Locale("nl"),
-        // Locale("nn"),
-        // Locale("no"),
-        // Locale("pl"),
-        // Locale("ps"),
-        // Locale("pt"),
-        // Locale("ro"),
-        // Locale("ru"),
-        // Locale("sd"),
-        // Locale("sk"),
-        // Locale("sl"),
-        // Locale("so"),
-        // Locale("sq"),
-        // Locale("sr"),
-        // Locale("sv"),
-        // Locale("ta"),
-        // Locale("tg"),
-        // Locale("th"),
-        // Locale("tk"),
-        // Locale("tr"),
-        // Locale("tt"),
-        // Locale("uk"),
-        // Locale("ug"),
-        // Locale("ur"),
-        // Locale("uz"),
-        // Locale("vi"),
-        // Locale("zh")
       ],
       localizationsDelegates: const [
         CountryLocalizations.delegate,

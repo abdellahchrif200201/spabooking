@@ -112,7 +112,7 @@ class _DetailsState extends State<Details> {
 
           for (var salon in salonList) {
             if (salon['id'].toString() == salon_id) {
-              print("aaaaaaaaaaaaaaaaaaaaaa" + salon.toString());
+             
               targetSalon = salon;
               break;
             }

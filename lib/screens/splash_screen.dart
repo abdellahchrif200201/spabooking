@@ -11,12 +11,12 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreenn extends StatefulWidget {
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  _SplashScreennState createState() => _SplashScreennState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreennState extends State<SplashScreenn> {
   final Logger logger = Logger(); // Initialize the logger
 
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin(); // Initialize FlutterLocalNotificationsPlugin
@@ -188,9 +188,9 @@ class YourNextScreen extends StatelessWidget {
 // import 'package:spa/screens/home_page.dart';
 // import 'package:spa/screens/login_view.dart';
 
-// class SplashScreen extends StatefulWidget {
+// class SplashScreenn extends StatefulWidget {
 //   @override
-//   _SplashScreenState createState() => _SplashScreenState();
+//   _SplashScreennState createState() => _SplashScreenState();
 // }
 
 // class _SplashScreenState extends State<SplashScreen> {

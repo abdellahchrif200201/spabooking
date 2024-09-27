@@ -81,15 +81,7 @@ class _FilteredGridPageState extends State<FilteredGridPage> {
                   filteredPlaces = latestServices;
                   places = latestServices;
                 });
-                print('Service Details:');
-                print('  Price: ${service2.price}');
-                print('  Name: ${service2.name}');
-                print('  ID: ${service2.id}');
-                print('  Main Image: ${service2.mainImage}');
-                print('  Side Images: ${service2.sideImages}');
-                print('  Location: ${service2.location}');
-                print('  Stars: ${service2.stars}');
-                print('  Type: ${service2.type}');
+               
               } else {
                 print('Error: Invalid response structure for getServiceById');
               }

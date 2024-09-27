@@ -23,7 +23,7 @@ class AuthService {
           Uri.parse('$domain2/api/getUserByToken'),
           headers: {'Authorization': bearerToken},
         );
-        _logger.i(response.body);
+        // _logger.i(response.body);
 
         if (response.statusCode == 200 || response.statusCode == 201) {
           // User is authorized, navigate to HomePage

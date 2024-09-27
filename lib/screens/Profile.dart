@@ -263,7 +263,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 : 'Enregistrer les modifications', onPressed: () {
                       saveChanges();
                     }),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     ElevatedButton(
@@ -277,7 +277,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                               content: Container(
                                   height: 85,
-                                  child: Column(
+                                  child: const Column(
                                     children: [
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -309,13 +309,13 @@ class _ProfilePageState extends State<ProfilePage> {
                                       onPressed: () {
                                         Navigator.of(context).pop(); // Close the dialog
                                       },
-                                      child: Text('Annuler', style: TextStyle(color: Colors.grey)),
+                                      child: const Text('Annuler', style: TextStyle(color: Colors.grey)),
                                     ),
                                     ElevatedButton(
                                       onPressed: () async {
                                         await deleteProfile();
                                       },
-                                      child: Text('Supprimer'),
+                                      child: const Text('Supprimer'),
                                       style: ElevatedButton.styleFrom(
                                           // primary: const Color.fromARGB(
                                           //     255,
@@ -333,7 +333,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           },
                         );
                       },
-                      child: Text("Supprimer le compte"),
+                      child: const Text("Supprimer le compte"),
                       style: ElevatedButton.styleFrom(
                         // primary: Colors.red,
                         shape: RoundedRectangleBorder(
@@ -536,12 +536,19 @@ class _ProfilePageState extends State<ProfilePage> {
           if (response.statusCode == 200 || response.statusCode == 201) {
             logger.d("API call successful");
             logger.d("Response body: ${response.body}");
+            logger.d(response.body);
+            logger.i(response.body);
+
+            handleApiResponse(response.body);
+
+
+
+            
 
             SharedPreferences prefs = await SharedPreferences.getInstance();
 
             // prefs.setString('authToken', tokenFromResponse);
-           
-           
+
             // prefs.setString('image', image);
 
             if (oldName != newName) {
@@ -619,7 +626,7 @@ class _ProfilePageState extends State<ProfilePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? authToken = "Bearer " + prefs.getString('authToken').toString();
     // If the token exists, make the API request
-    if (authToken != null) {
+    if (authToken.isNotEmpty) {
       try {
         logger.d(authToken);
 
@@ -631,11 +638,11 @@ class _ProfilePageState extends State<ProfilePage> {
         logger.d(response.body);
         if (response.statusCode == 200 || response.statusCode == 201) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Compte bien supprimé"),
             ),
           );
-          Future.delayed(Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 2), () {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -646,11 +653,11 @@ class _ProfilePageState extends State<ProfilePage> {
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text("Impossible de supprimer le compte"),
             ),
           );
-          Future.delayed(Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 2), () {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -662,11 +669,11 @@ class _ProfilePageState extends State<ProfilePage> {
         }
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text("Impossible de supprimer le compte"),
           ),
         );
-        Future.delayed(Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 2), () {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -685,6 +692,36 @@ class _ProfilePageState extends State<ProfilePage> {
                   comes: false,
                 )),
       );
+    }
+  }
+
+  void handleApiResponse(String responseBody)async {
+    // Decode the response body into a Map
+    var decodedResponse = json.decode(responseBody);
+
+    // Check if "data" and "media" exist in the response
+    if (decodedResponse != null && decodedResponse is List && decodedResponse[1].length > 1) {
+      var data = decodedResponse[1][1];
+
+      // Get the media array
+      var media = data['media'];
+      logger.d(media);
+
+      // If media is not empty, extract the first item's "original_url"
+      if (media != null && media.isNotEmpty) {
+        String imageUrl = media[0]['original_url'];
+        logger.i('Image URL: $imageUrl'); // You can log this to confirm it works
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        if (imageUrl != image) {
+          prefs.setString('image', imageUrl);
+        }
+
+        // Display the image (this part is for the UI)
+        // You can pass this imageUrl to an Image widget like this:
+        
+      }
     }
   }
 }
