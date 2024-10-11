@@ -6,7 +6,6 @@ import 'package:intl/date_symbol_data_local.dart'; // Import this package
 import 'package:country_code_picker/country_code_picker.dart';
 // import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:spa/screens/splash_screen.dart';
 import 'package:spa/splashScreen/firebase_service.dart';
 import 'package:spa/splashScreen/splash_screen.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -25,13 +24,14 @@ void main() async {
  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher'); // Use your app icon
-   const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
- await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   // Optionally, you can create an instance of your FirebaseService here if needed
   FirebaseService();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

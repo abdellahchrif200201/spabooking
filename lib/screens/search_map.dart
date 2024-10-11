@@ -30,15 +30,13 @@ class _MyMapState extends State<MyMap> {
   bool isListVisible = true;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String? currentCity;
-  List<PlaceOption> filteredList = [];
+  static List<PlaceOption> filteredList = [];
   Position? P;
   Future<void> getCurrentCity() async {
     try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
 
       if (placemarks.isNotEmpty) {
         setState(() {
@@ -55,8 +53,7 @@ class _MyMapState extends State<MyMap> {
         currentCity = 'Error getting location';
       });
     }
-    print(currentCity.toString() +
-        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    print(currentCity.toString() + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   }
 
   fetchdata() async {
@@ -81,54 +78,41 @@ class _MyMapState extends State<MyMap> {
 
       return salonList.map((salonJson) {
         String imageUrl = '';
-        final Map<String, dynamic> addressMap = salonJson['address_map'] != null
-            ? json.decode(salonJson['address_map'])
-            : <String, dynamic>{};
+        final Map<String, dynamic> addressMap = salonJson['address_map'] != null ? json.decode(salonJson['address_map']) : <String, dynamic>{};
 
-        if (salonJson['media'] != null &&
-            salonJson['media'].isNotEmpty &&
-            salonJson['media'][0]['original_url'] != null) {
+        if (salonJson['media'] != null && salonJson['media'].isNotEmpty && salonJson['media'][0]['original_url'] != null) {
           imageUrl = salonJson['media'][0]['original_url'];
         } else {
           imageUrl = "https://spabooking.pro/assets/no-image-18732f44.png";
         }
         if (addressMap['lat'] != null && addressMap['lon'] != null) {
-          addMarker(
-              LatLng(double.parse(addressMap['lat']),
-                  double.parse(addressMap['lon'])),
-              salonJson['name']);
+          addMarker(LatLng(double.parse(addressMap['lat']), double.parse(addressMap['lon'])), salonJson['name']);
         }
 
         return PlaceOption(
-          latitude: double.parse(
-              addressMap['lat'].toString() == 'null' ? "0" : addressMap['lat']),
-          longitude: double.parse(
-              addressMap['lon'].toString() == 'null' ? "0" : addressMap['lon']),
+          latitude: double.parse(addressMap['lat'].toString() == 'null' ? "0" : addressMap['lat']),
+          longitude: double.parse(addressMap['lon'].toString() == 'null' ? "0" : addressMap['lon']),
           placeName: salonJson['name'],
           placeCity: salonJson['city'],
           placeRating: salonJson['reviews']['average_rating'].toString(),
-          placeImage:
-              imageUrl, // Provide a placeholder image path or any default image
-          isFemalePlace: (salonJson['genre'].contains('Femme') &&
-                  salonJson['genre'].contains('Homme'))
+          placeImage: imageUrl, // Provide a placeholder image path or any default image
+          isFemalePlace: (salonJson['genre'].contains('Femme') && salonJson['genre'].contains('Homme'))
               ? 'Mixte'
               : salonJson['genre'].contains('Femme')
                   ? 'Femme'
                   : 'Homme',
-          isOpen: isSalonOpenNow(List<Map<String, dynamic>>.from(
-              salonJson['disponibility'] ?? [])),
+          isOpen: salonJson['available'] == 1 ? true : false,
           id: salonJson['id'].toString(),
         );
       }).toList();
     } else {
-      throw Exception(
-          'sssssssssssssssssssssssssssssssssssssssssssssssssss Failed to load places');
+      throw Exception('sssssssssssssssssssssssssssssssssssssssssssssssssss Failed to load places');
     }
   }
 
   isSalonOpenNow(List<Map<String, dynamic>> availabilityData) {
-    print("+++++++++++++++++++++++++++++++++++++++++++++++++");
-    print(availabilityData);
+    // print("+++++++++++++++++++++++++++++++++++++++++++++++++");
+    // print(availabilityData);
     for (String day in [
       'Lundi', // Monday
       'Mardi', // Tuesday
@@ -140,9 +124,7 @@ class _MyMapState extends State<MyMap> {
     ]) {
       Map<String, dynamic> L = {};
 
-      var availability = availabilityData.firstWhere(
-          (availability) => availability['day'] == day,
-          orElse: () => L);
+      var availability = availabilityData.firstWhere((availability) => availability['day'] == day, orElse: () => L);
 
       if (availability.isEmpty) {
         // Salon is not available on this day
@@ -157,17 +139,13 @@ class _MyMapState extends State<MyMap> {
       DateTime endTime = DateFormat('HH:mm').parse(endTimeStr);
       DateTime currentTime = DateTime.now();
 
-      print("rrrrrrrrrrrrrrrrrrrrrrrr " + getCurrentDayNameInFrench());
-      print("MMMMMMMMMMMMMMMMMMM " + day);
-      print("NNNNNNNNNNNNNNNNNNNNNNNNNN " + startTime.hour.toString());
-      print("eeeeeeeeeeeeeeeeeeeeeeeeeee " + endTime.hour.toString());
-      print(getCurrentDayNameInFrench() == day);
-      if (getCurrentDayNameInFrench() == day &&
-          currentTime.hour > startTime.hour &&
-          currentTime.hour < endTime.hour) {
-        print(
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " +
-                endTime.hour.toString());
+      // print("rrrrrrrrrrrrrrrrrrrrrrrr " + getCurrentDayNameInFrench());
+      // print("MMMMMMMMMMMMMMMMMMM " + day);
+      // print("NNNNNNNNNNNNNNNNNNNNNNNNNN " + startTime.hour.toString());
+      // print("eeeeeeeeeeeeeeeeeeeeeeeeeee " + endTime.hour.toString());
+      // print(getCurrentDayNameInFrench() == day);
+      if (getCurrentDayNameInFrench() == day && currentTime.hour > startTime.hour && currentTime.hour < endTime.hour) {
+        // print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + endTime.hour.toString());
 
         return true;
       } else {}
@@ -181,7 +159,9 @@ class _MyMapState extends State<MyMap> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _loadLanguage();
+    if (filteredList.isEmpty) {
+      _loadLanguage();
+    }
 
     fetchdata();
   }
@@ -249,7 +229,7 @@ class _MyMapState extends State<MyMap> {
       // Permission denied, handle accordingly
       print("Location permission denied");
     }
-    print("i tryed ::::::::::::::::" + P.toString());
+    // print("i tryed ::::::::::::::::" + P.toString());
 
     if (P != null) {
       GoogleMapController controller = await _controllerSSS.future;
@@ -263,7 +243,7 @@ class _MyMapState extends State<MyMap> {
       // Set different zoom levels based on whether it's a region or a province
       double zoomLevel = 10;
 
-      print("i tryed ::::::::::::::::");
+      // print("i tryed ::::::::::::::::");
       controller.moveCamera(CameraUpdate.newLatLngZoom(center, zoomLevel));
     }
   }
@@ -319,12 +299,9 @@ class _MyMapState extends State<MyMap> {
       body: Column(
         children: [
           Container(
-              height: isListVisible
-                  ? MediaQuery.of(context).size.height * 0.3
-                  : MediaQuery.of(context).size.height - 185,
+              height: isListVisible ? MediaQuery.of(context).size.height * 0.3 : MediaQuery.of(context).size.height - 185,
               child: GoogleMap(
-                onMapCreated: (GoogleMapController controller) =>
-                    _controllerSSS.complete(controller),
+                onMapCreated: (GoogleMapController controller) => _controllerSSS.complete(controller),
                 initialCameraPosition: P != null
                     ? CameraPosition(
                         target: LatLng(
@@ -354,14 +331,12 @@ class _MyMapState extends State<MyMap> {
                       hintText: selectedLanguage == "English"
                           ? translate('Rechercher des salons...', home_English)
                           : selectedLanguage == "Arabic"
-                              ? translate(
-                                  'Rechercher des salons...', home_Arabic)
+                              ? translate('Rechercher des salons...', home_Arabic)
                               : 'Rechercher des salons...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 16.0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                     ),
                   ),
                 ),
@@ -389,11 +364,7 @@ class _MyMapState extends State<MyMap> {
                       isListVisible = !isListVisible;
                     });
                   },
-                  icon: Icon(
-                      !isListVisible ? Icons.visibility_off : Icons.visibility,
-                      color: !isListVisible
-                          ? Colors.grey
-                          : const Color(0xFFD91A5B)),
+                  icon: Icon(!isListVisible ? Icons.visibility_off : Icons.visibility, color: !isListVisible ? Colors.grey : const Color(0xFFD91A5B)),
                 ),
               ],
             ),
@@ -433,11 +404,7 @@ class _MyMapState extends State<MyMap> {
 
   void filterList(String query) {
     setState(() {
-      filteredList = list
-          .where((place) =>
-              place.placeName.toLowerCase().contains(query.toLowerCase()) ||
-              place.placeCity.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      filteredList = list.where((place) => place.placeName.toLowerCase().contains(query.toLowerCase()) || place.placeCity.toLowerCase().contains(query.toLowerCase())).toList();
     });
   }
 }
@@ -447,8 +414,7 @@ class PlaceOption extends StatefulWidget {
   final String placeCity;
   final String placeRating;
   final String placeImage;
-  final String
-      isFemalePlace; // Add a boolean to determine if it's a female place
+  final String isFemalePlace; // Add a boolean to determine if it's a female place
   final bool isOpen;
   final double latitude;
   final double longitude;
@@ -547,19 +513,15 @@ class _PlaceOptionState extends State<PlaceOption> {
                     children: [
                       Text(
                         widget.placeName,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        overflow:
-                            TextOverflow.ellipsis, // Truncate with ellipsis
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis, // Truncate with ellipsis
                         maxLines: 2,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         widget.placeCity,
-                        style:
-                            const TextStyle(fontSize: 14, color: Colors.grey),
-                        overflow:
-                            TextOverflow.ellipsis, // Truncate with ellipsis
+                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        overflow: TextOverflow.ellipsis, // Truncate with ellipsis
                         maxLines: 2,
                       ),
                       const SizedBox(height: 8),
@@ -569,10 +531,8 @@ class _PlaceOptionState extends State<PlaceOption> {
                           const SizedBox(width: 4),
                           Text(
                             widget.placeRating,
-                            style: const TextStyle(
-                                fontSize: 14, color: Color(0xFFD91A5B)),
-                            overflow:
-                                TextOverflow.ellipsis, // Truncate with ellipsis
+                            style: const TextStyle(fontSize: 14, color: Color(0xFFD91A5B)),
+                            overflow: TextOverflow.ellipsis, // Truncate with ellipsis
                             maxLines: 2,
                           ),
                         ],
@@ -591,24 +551,17 @@ class _PlaceOptionState extends State<PlaceOption> {
                             children: const [
                               Icon(
                                 Icons.woman,
-                                color:
-                                    Color(0xFFD91A5B), // Set icon color to pink
+                                color: Color(0xFFD91A5B), // Set icon color to pink
                                 size: 20,
                               ),
                               Icon(
                                 Icons.man,
-                                color:
-                                    Color(0xFFD91A5B), // Set icon color to pink
+                                color: Color(0xFFD91A5B), // Set icon color to pink
                                 size: 20,
                               ),
                             ],
                           ),
-                        if (widget.isFemalePlace != "Mixte")
-                          Icon(
-                              widget.isFemalePlace == "Femme"
-                                  ? Icons.female
-                                  : Icons.male,
-                              color: Colors.pink),
+                        if (widget.isFemalePlace != "Mixte") Icon(widget.isFemalePlace == "Femme" ? Icons.female : Icons.male, color: Colors.pink),
                         const SizedBox(width: 4),
                         SizedBox(
                           width: 60,
@@ -616,11 +569,9 @@ class _PlaceOptionState extends State<PlaceOption> {
                             selectedLanguage == "English"
                                 ? translate(widget.isFemalePlace, home_English)
                                 : selectedLanguage == "Arabic"
-                                    ? translate(
-                                        widget.isFemalePlace, home_Arabic)
+                                    ? translate(widget.isFemalePlace, home_Arabic)
                                     : widget.isFemalePlace,
-                            style: const TextStyle(
-                                fontSize: 12, color: Colors.pink),
+                            style: const TextStyle(fontSize: 12, color: Colors.pink),
                           ),
                         ),
                       ],
@@ -649,8 +600,7 @@ class _PlaceOptionState extends State<PlaceOption> {
                                           : 'Fermé',
                               style: TextStyle(
                                 fontSize: 12,
-                                color:
-                                    widget.isOpen ? Colors.green : Colors.red,
+                                color: widget.isOpen ? Colors.green : Colors.red,
                               ),
                             )),
                       ],

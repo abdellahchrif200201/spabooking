@@ -36,7 +36,7 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
   List<String> list_choises = [];
   String? selectedCity;
   List<PLaces3> placeses = [];
-  List<PLaces3> placeses_filtred = [];
+  static List<PLaces3> placeses_filtred = [];
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -182,7 +182,13 @@ class _ListSalonFavorisState extends State<ListSalonFavoris> {
 
     _loadLanguage();
 
-    _fetchAndStoreServiceDetails();
+    if (placeses_filtred.isEmpty) {
+      _fetchAndStoreServiceDetails();
+    } else {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override

@@ -36,28 +36,38 @@ class _HomePageState extends State<HomePage> {
   // late AnimationController _controller2;
   // late Animation<double> _animation2;
   bool isSearchVisible = false;
-  List<City> Allcities = [];
-  List<String> selectedOptions = [];
-  List<String> images = ["", "", ""];
-  List<String> titles = ["", "", ""];
-  List<String> buttons = ["", "", ""];
-  List<String> links = ["", "", ""];
+  static List<City> Allcities = [];
+  static List<String> selectedOptions = [];
+  static List<String> images = ["", "", ""];
+  static List<String> titles = ["", "", ""];
+  static List<String> buttons = ["", "", ""];
+  static List<String> links = ["", "", ""];
 
   // List of options with labels and icons
-  List<Map<String, dynamic>> options = [];
+  static List<Map<String, dynamic>> options = [];
 
   int currentPage = 1;
   bool isLoading = false;
   bool hasMore = true;
 
-  List<Map<String, dynamic>> updatedOptions = [];
-  List<PLaces2> placeses = [];
-  List<PLaces2> Recomanded = [];
-  List<PLaces2> All_services = [];
+  static List<Map<String, dynamic>> updatedOptions = [];
+  static List<PLaces2> placeses = [];
+  static List<PLaces2> Recomanded = [];
   TextEditingController controller = TextEditingController();
   final SwiperController _swiperController = SwiperController();
 
   final List<Service> services = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLanguage();
+
+    // if (options.isEmpty) {
+    _fetchAndStoreSalons();
+    // }
+  }
+
   getSlides() async {
     List<String> imageUrls = [];
     List<String> titless = [];
@@ -264,11 +274,20 @@ class _HomePageState extends State<HomePage> {
     // fetchCategories();
 
     await getSlides();
-    await getSalons();
-    await getRecommended();
-    await getcities();
 
-   await fetchInitialData();
+    if (Recomanded.isEmpty || placeses.isEmpty) {
+      await getSalons();
+      await getRecommended();
+    }
+
+    if (options.isEmpty) {
+      await fetchInitialData();
+    }
+
+    if (Allcities.isEmpty) {
+      await getcities();
+    }
+
     setState(() {});
   }
 
@@ -433,17 +452,11 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
-  // void printFormattedJson(String jsonString) {
-  //   final parsedJson = jsonDecode(jsonString);
-  //   final formattedJsonString = const JsonEncoder.withIndent('  ').convert(parsedJson);
-  //   // logger.d(formattedJsonString);
-  // }
-
   Future<void> fetchInitialData() async {
     // Load both page 1 and page 2 on initialization
     await fetchData(1); // Fetch page 1
     await fetchData(2); // Fetch page 2
-    await fetchData(3); // Fetch page 2
+    // await fetchData(3); // Fetch page 2
   }
 
   Future<void> fetchData(int page) async {
@@ -534,6 +547,7 @@ class _HomePageState extends State<HomePage> {
         });
 
         setState(() {
+          logger.d("first get data in services");
           options.addAll(newOptions); // Append new data to the existing list
         });
       } else {
@@ -547,111 +561,6 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
-
-  //  fetchData() async {
-  //   try {
-  //     final response = await http.get(
-  //       Uri.parse('$domain2/api/getServices?page=2'), //  {/*?page=1 */}
-  //     );
-
-  //     // logger.d(response.body);
-
-  //     // printFormattedJson(response.body);
-
-  //     if (response.statusCode == 200 || response.statusCode == 201) {
-  //       Map<String, dynamic> responseMap = json.decode(response.body);
-  //       List<dynamic> services = responseMap['services']['data']
-  //       ;
-
-  //       logger.i(response.body);
-
-  //       List<Map<String, dynamic>> servicesJson = List<Map<String, dynamic>>.from(services.map((service) {
-  //         List<String> sideImages = [];
-  //         if (service['media'] != null) {
-  //           sideImages = List<String>.from(service['media'].map((image) {
-  //             return image['original_url'];
-  //           }));
-  //         }
-  //         List<Map<String, dynamic>> categories = List<Map<String, dynamic>>.from(service['service_categories'].map((category) {
-  //           String categoryId = category['category']['id'].toString();
-  //           String categoryName = category['category']['name'];
-
-  //           // Check if 'media' is not empty before accessing the URL
-  //           String iconUrl = '';
-  //           if (category['category']['media'] != null && category['category']['media'].isNotEmpty) {
-  //             iconUrl = category['category']['media'][0]['original_url'];
-  //           }
-
-  //           return {
-  //             'categoryId': categoryId,
-  //             'categoryName': categoryName,
-  //             'icon': iconUrl,
-  //           };
-  //         }));
-
-  //         return {
-  //           'name': service['name'],
-  //           'id': service['id'],
-  //           'mainImage': sideImages.isNotEmpty ? sideImages[0] : '',
-  //           'sideImages': sideImages,
-  //           'location': service['duration'],
-  //           'stars': service['accepted'],
-  //           'type': service['genre'],
-  //           'price': service['price'],
-  //           'categories': categories,
-  //           'discount_price': service['discount_price']
-  //         };
-  //       }));
-
-  //       Map<String, Map<String, dynamic>> categoryMap = {};
-
-  //       servicesJson.forEach((service) {
-  //         service['categories'].forEach((category) {
-  //           String categoryId = category['categoryId'].toString(); // Convert to string
-  //           if (!categoryMap.containsKey(categoryId)) {
-  //             categoryMap[categoryId] = {
-  //               'id': categoryId,
-  //               'label': category['categoryName'],
-  //               'icon': category['icon'], // Replace with the actual icon URL
-  //               'services': [],
-  //             };
-  //           }
-  //           categoryMap[categoryId]!['services'].add(service);
-  //         });
-  //       });
-
-  //       // Create the final options list
-  //       List<Map<String, dynamic>> optionsss = [];
-  //       categoryMap.forEach((categoryId, categoryOption) {
-  //         optionsss.add({
-  //           'id': categoryId,
-  //           'label': categoryOption['label'],
-  //           'icon': categoryOption['icon'],
-  //           'services': categoryOption['services'],
-  //         });
-  //       });
-
-  //       // Print the result for verification
-  //       /*  optionsss.forEach((option) {
-  //         print('Category: ${option['label']}');
-  //         option['services'].forEach((service) {
-  //           print('- Service: ${service['name']}');
-  //           // Add other service details as needed
-  //         });
-  //       });*/
-
-  //       // Set the options state
-  //       setState(() {
-  //         options = optionsss;
-  //       });
-  //     } else {
-  //       print('Failed to load data. Status code: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error fetching data: $e');
-  //   }
-  //   setState(() {});
-  // }
 
   late SharedPreferences _prefs;
   String selectedLanguage = '';
@@ -671,14 +580,6 @@ class _HomePageState extends State<HomePage> {
 
   String translate(String key, Map<String, String> translationMap) {
     return translationMap[key] ?? key;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadLanguage();
-
-    _fetchAndStoreSalons();
   }
 
   @override

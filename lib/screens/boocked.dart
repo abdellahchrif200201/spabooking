@@ -42,20 +42,18 @@ class _BookedState extends State<Booked> {
           print(localId);
           List<Reservation> latestPlaces = salons.map((salon) {
             // Print the data before creating Reservation object
-            
+
             return Reservation(
               promo: salon['service']['discount_price'] ?? '0',
-              SalonTelephone:
-                  salon['service']['salon']['phone_number'].toString(),
+              SalonTelephone: salon['service']['salon']['phone_number'].toString(),
+              seviceName: salon['service']['name'].toString(),
               SalonName: salon['service']['salon']['name'].toString(),
               emailStaff: salon['staff']['email'].toString(),
               folder_number: salon['folder_number'].toString(),
               nameStaff: salon['staff']['name'].toString(),
               start_at: salon['start_at'].toString(),
-              phone_numberStaff:
-                  salon['staff']['phone_number'] ?? ' Untrouvable',
-              img: "$domain2/storage/" +
-                  salon['service']['salon']['logo'].toString(),
+              phone_numberStaff: salon['staff']['phone_number'] ?? ' Untrouvable',
+              img: "$domain2/storage/${salon['service']['salon']['logo']}",
               adress: salon['service']['salon']['address'].toString(),
               name: salon['user']['name'].toString(),
               bookingStatus: salon['booking_status'].toString(),
@@ -166,45 +164,38 @@ class _BookedState extends State<Booked> {
                     : selectedLanguage == "Arabic"
                         ? translate('Réservations', home_Arabic)
                         : 'Réservations',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFFD91A5B)),
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFFD91A5B)),
               ),
               const SizedBox(height: 16),
               Expanded(
                 child: loading
                     ? JumpingDots(
-                        color: Color(0xFFD91A5B),
+                        color: const Color(0xFFD91A5B),
                         radius: 10,
                         numberOfDots: 3,
-                        animationDuration: Duration(milliseconds: 200),
+                        animationDuration: const Duration(milliseconds: 200),
                       )
                     : placeses_filtred.isEmpty
                         ? Center(
                             child: Container(
-                              margin: EdgeInsets.all(20),
-                              padding: EdgeInsets.all(20),
+                              margin: const EdgeInsets.all(20),
+                              padding: const EdgeInsets.all(20),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
                                     Icons.info_outline,
                                     size: 48,
-                                    color: Color(0xFFD91A5B).withOpacity(0.8),
+                                    color: const Color(0xFFD91A5B).withOpacity(0.8),
                                   ),
-                                  SizedBox(height: 16),
+                                  const SizedBox(height: 16),
                                   Text(
                                     selectedLanguage == "English"
-                                        ? translate(
-                                            'Aucun réservations disponible',
-                                            home_English)
+                                        ? translate('Aucun réservations disponible', home_English)
                                         : selectedLanguage == "Arabic"
-                                            ? translate(
-                                                'Aucun réservations disponible',
-                                                home_Arabic)
+                                            ? translate('Aucun réservations disponible', home_Arabic)
                                             : 'Aucun réservations disponible',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       color: Color(0xFFD91A5B),
                                     ),
@@ -214,8 +205,7 @@ class _BookedState extends State<Booked> {
                             ),
                           )
                         : ListView.builder(
-                            itemCount: placeses_filtred
-                                .length, // Replace with your actual data length
+                            itemCount: placeses_filtred.length, // Replace with your actual data length
                             itemBuilder: (context, index) {
                               return GestureDetector(
                                   onTap: () {
@@ -223,8 +213,7 @@ class _BookedState extends State<Booked> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ReservationPage(
-                                                reservation:
-                                                    placeses_filtred[index],
+                                                reservation: placeses_filtred[index],
                                               )),
                                     );
                                   },
@@ -234,9 +223,7 @@ class _BookedState extends State<Booked> {
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          color: const Color(0xFFD91A5B),
-                                          width: 1),
+                                      border: Border.all(color: const Color(0xFFD91A5B), width: 1),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.grey.withOpacity(0.5),
@@ -247,77 +234,43 @@ class _BookedState extends State<Booked> {
                                       ],
                                     ),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Row(children: [
-                                              Text((selectedLanguage ==
-                                                          "English"
-                                                      ? translate(
-                                                          'Réservations',
-                                                          home_English)
-                                                      : selectedLanguage ==
-                                                              "Arabic"
-                                                          ? translate(
-                                                              'Réservations',
-                                                              home_Arabic)
-                                                          : 'Réservations') +
-                                                  " "),
                                               Text(
-                                                placeses_filtred[index]
-                                                    .reservationNumber
-                                                    .toString(),
+                                                  "${selectedLanguage == "English" ? translate('Réservations', home_English) : selectedLanguage == "Arabic" ? translate('Réservations', home_Arabic) : 'Réservations'} "),
+                                              Text(
+                                                placeses_filtred[index].reservationNumber.toString(),
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                             ]),
                                             const SizedBox(width: 8),
-                                            if (placeses_filtred[index]
-                                                    .phone_numberStaff
-                                                    .toString() !=
-                                                ' Untrouvable')
+                                            if (placeses_filtred[index].phone_numberStaff.toString() != ' Untrouvable')
                                               Row(children: [
                                                 Chip(
                                                   label: Text(
-                                                    placeses_filtred[index]
-                                                        .phone_numberStaff
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                        color: Colors.white),
+                                                    placeses_filtred[index].phone_numberStaff.toString(),
+                                                    style: const TextStyle(color: Colors.white),
                                                   ),
-                                                  backgroundColor:
-                                                      Color(0xFFD91A5B)
-                                                          .withOpacity(0.8),
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 4,
-                                                      vertical: 0),
+                                                  backgroundColor: const Color(0xFFD91A5B).withOpacity(0.8),
+                                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
                                                 ),
                                                 const SizedBox(width: 5),
                                               ]),
-                                            if (placeses_filtred[index]
-                                                    .phone_numberStaff
-                                                    .toString() ==
-                                                ' Untrouvable')
+                                            if (placeses_filtred[index].phone_numberStaff.toString() == ' Untrouvable')
                                               Row(children: [
                                                 Chip(
                                                   label: Text(
-                                                    placeses_filtred[index]
-                                                        .phone_numberStaff
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                        color: Colors.white),
+                                                    placeses_filtred[index].phone_numberStaff.toString(),
+                                                    style: const TextStyle(color: Colors.white),
                                                   ),
                                                   backgroundColor: Colors.white,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 4,
-                                                      vertical: 0),
+                                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
                                                 ),
                                                 const SizedBox(width: 5),
                                               ]),
@@ -330,25 +283,13 @@ class _BookedState extends State<Booked> {
                                         Row(
                                           children: [
                                             ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                              borderRadius: BorderRadius.circular(10),
                                               child: CachedNetworkImage(
-                                                imageUrl:
-                                                    placeses_filtred[index]
-                                                        .img
-                                                        .toString(),
-                                                errorWidget:
-                                                    (context, url, error) =>
-                                                        CachedNetworkImage(
-                                                  imageUrl:
-                                                      "https://spabooking.pro/assets/no-image-18732f44.png",
-                                                  placeholder: (context, url) =>
-                                                      Center(
-                                                    child: Container(
-                                                        width: 40,
-                                                        height: 40,
-                                                        child:
-                                                            CircularProgressIndicator()),
+                                                imageUrl: placeses_filtred[index].img.toString(),
+                                                errorWidget: (context, url, error) => CachedNetworkImage(
+                                                  imageUrl: "https://spabooking.pro/assets/no-image-18732f44.png",
+                                                  placeholder: (context, url) => Center(
+                                                    child: Container(width: 40, height: 40, child: const CircularProgressIndicator()),
                                                   ),
                                                 ),
                                                 height: 60,
@@ -359,150 +300,89 @@ class _BookedState extends State<Booked> {
                                             const SizedBox(
                                               width: 20,
                                             ),
-                                            Container(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.5,
+                                            SizedBox(
+                                                width: MediaQuery.of(context).size.width * 0.5,
                                                 child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      placeses_filtred[index]
-                                                          .name
-                                                          .toString(),
+                                                      placeses_filtred[index].name.toString(),
                                                       style: const TextStyle(
                                                         fontSize: 16,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color:
-                                                            Color(0xFFD91A5B),
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Color(0xFFD91A5B),
                                                       ),
-                                                      overflow: TextOverflow
-                                                          .ellipsis, // Truncate with ellipsis
-                                                      maxLines:
-                                                          1, // Set the maximum number of lines
+                                                      overflow: TextOverflow.ellipsis, // Truncate with ellipsis
+                                                      maxLines: 1, // Set the maximum number of lines
                                                     ),
                                                     const SizedBox(height: 8),
                                                     Text(
-                                                      extractPlainText(
-                                                          placeses_filtred[
-                                                                  index]
-                                                              .description
-                                                              .toString()),
-                                                      style: const TextStyle(
-                                                          fontSize: 14),
-                                                      overflow: TextOverflow
-                                                          .ellipsis, // Truncate with ellipsis
-                                                      maxLines:
-                                                          1, // Set the maximum number of lines
+                                                      extractPlainText(placeses_filtred[index].seviceName),
+                                                      style: const TextStyle(fontSize: 14),
+                                                      overflow: TextOverflow.ellipsis, // Truncate with ellipsis
+                                                      maxLines: 1, // Set the maximum number of lines
                                                     ),
                                                     const SizedBox(height: 4),
-                                                    Container(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.3,
+                                                    SizedBox(
+                                                        width: MediaQuery.of(context).size.width * 0.3,
                                                         child: Text(
-                                                          placeses_filtred[
-                                                                  index]
-                                                              .adress
-                                                              .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 12),
-                                                          overflow: TextOverflow
-                                                              .ellipsis, // Truncate with ellipsis
-                                                          maxLines:
-                                                              1, // Set the maximum number of lines
+                                                          placeses_filtred[index].adress.toString(),
+                                                          style: const TextStyle(fontSize: 12),
+                                                          overflow: TextOverflow.ellipsis, // Truncate with ellipsis
+                                                          maxLines: 1, // Set the maximum number of lines
                                                         )),
                                                   ],
                                                 )),
                                           ],
                                         ),
                                         const SizedBox(height: 8),
-                                        Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(children: [
-                                                Text(
-                                                  "Créé le : " +
-                                                      DateTime.parse(
-                                                              placeses_filtred[
-                                                                      index]
-                                                                  .date
-                                                                  .toString())
-                                                          .toLocal()
-                                                          .toString()
-                                                          .substring(0, 16)
-                                                          .replaceAll(
-                                                              'T', ' - '),
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ]),
-                                              Row(children: [
-                                                Text(selectedLanguage ==
-                                                        "English"
-                                                    ? translate('Prix total: ',
-                                                        home_English)
-                                                    : selectedLanguage ==
-                                                            "Arabic"
-                                                        ? translate(
-                                                            'Prix total: ',
-                                                            home_Arabic)
-                                                        : 'Prix total: '),
-                                                placeses_filtred[index]
-                                                            .promo
-                                                            .toString() !=
-                                                        '0'
-                                                    ? Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "${placeses_filtred[index].promo.toString()} Dh",
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color: Color(
-                                                                  0xFFD91A5B),
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            "${placeses_filtred[index].price.toString()} Dh",
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  Colors.grey,
-                                                              decoration:
-                                                                  TextDecoration
-                                                                      .lineThrough,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    : Text(
-                                                        "${placeses_filtred[index].price.toString()} Dh",
+                                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                                          Row(children: [
+                                            Text(
+                                              "Créé le : ${DateTime.parse(placeses_filtred[index].date.toString()).toLocal().toString().substring(0, 16).replaceAll('T', ' - ')}",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ]),
+                                          Row(children: [
+                                            Text(selectedLanguage == "English"
+                                                ? translate('Prix total: ', home_English)
+                                                : selectedLanguage == "Arabic"
+                                                    ? translate('Prix total: ', home_Arabic)
+                                                    : 'Prix total: '),
+                                            placeses_filtred[index].promo.toString() != '0'
+                                                ? Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        "${placeses_filtred[index].promo.toString()} Dh",
                                                         style: const TextStyle(
                                                           fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              Color(0xFFD91A5B),
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Color(0xFFD91A5B),
                                                         ),
-                                                      )
-                                              ]),
-                                            ]),
+                                                      ),
+                                                      Text(
+                                                        "${placeses_filtred[index].price.toString()} Dh",
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: Colors.grey,
+                                                          decoration: TextDecoration.lineThrough,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                : Text(
+                                                    "${placeses_filtred[index].price.toString()} Dh",
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Color(0xFFD91A5B),
+                                                    ),
+                                                  )
+                                          ]),
+                                        ]),
                                       ],
                                     ),
                                   ));
@@ -541,24 +421,25 @@ class Reservation {
   String payment_status;
   String img;
   String adress;
+  String seviceName;
 
-  Reservation({
-    required this.folder_number,
-    required this.start_at,
-    required this.promo,
-    required this.nameStaff,
-    required this.phone_numberStaff,
-    required this.name,
-    required this.emailStaff,
-    required this.SalonName,
-    required this.SalonTelephone,
-    required this.date,
-    required this.description,
-    required this.price,
-    required this.reservationNumber,
-    required this.bookingStatus,
-    required this.payment_status,
-    required this.img,
-    required this.adress,
-  });
+  Reservation(
+      {required this.folder_number,
+      required this.start_at,
+      required this.promo,
+      required this.nameStaff,
+      required this.phone_numberStaff,
+      required this.name,
+      required this.emailStaff,
+      required this.SalonName,
+      required this.SalonTelephone,
+      required this.date,
+      required this.description,
+      required this.price,
+      required this.reservationNumber,
+      required this.bookingStatus,
+      required this.payment_status,
+      required this.img,
+      required this.adress,
+      required this.seviceName});
 }

@@ -8,10 +8,10 @@ import 'package:auto_size_text/auto_size_text.dart';
 class ReservationPage extends StatefulWidget {
   final Reservation reservation;
 
-  ReservationPage({required this.reservation});
+  const ReservationPage({super.key, required this.reservation});
 
   @override
-  _ReservationPageState createState() => _ReservationPageState();
+  State<ReservationPage> createState() => _ReservationPageState();
 }
 
 class _ReservationPageState extends State<ReservationPage> {
@@ -43,11 +43,10 @@ class _ReservationPageState extends State<ReservationPage> {
               : selectedLanguage == "Arabic"
                   ? "تفاصيل الحجز"
                   : "Réservation ${widget.reservation.reservationNumber}",
-          style: TextStyle(color: Color(0xFFD91A5B)), // Set title text color
+          style: const TextStyle(color: Color(0xFFD91A5B)), // Set title text color
         ),
-        iconTheme: IconThemeData(color: Color(0xFFD91A5B)), // Set icon color
-        backgroundColor:
-            Colors.transparent, // Set app bar background color to transparent
+        iconTheme: const IconThemeData(color: Color(0xFFD91A5B)), // Set icon color
+        backgroundColor: Colors.transparent, // Set app bar background color to transparent
         elevation: 0, // Remove the shadow under the app bar
       ),
       body: Padding(
@@ -115,14 +114,13 @@ class _ReservationPageState extends State<ReservationPage> {
 
             Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Color(0xFFD91A5B)), // Adjust color as needed
+                  border: Border.all(color: const Color(0xFFD91A5B)), // Adjust color as needed
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Container(
                       margin: const EdgeInsets.only(bottom: 16.0),
                       child: Text(
@@ -131,7 +129,7 @@ class _ReservationPageState extends State<ReservationPage> {
                             : selectedLanguage == "Arabic"
                                 ? "تفاصيل العميل"
                                 : "Détails du salon",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFFD91A5B),
@@ -148,7 +146,7 @@ class _ReservationPageState extends State<ReservationPage> {
                       widget.reservation.SalonName, // Salon name
                       containerWidth,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildDetailRow2(
                       Icons.phone,
                       selectedLanguage == "English"
@@ -159,7 +157,7 @@ class _ReservationPageState extends State<ReservationPage> {
                       widget.reservation.SalonTelephone,
                       containerWidth,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     /* _buildDetailRow2(
                       Icons.email,
                       selectedLanguage == "English"
@@ -183,17 +181,16 @@ class _ReservationPageState extends State<ReservationPage> {
                     ),
                   ],
                 )),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Color(0xFFD91A5B)), // Adjust color as needed
+                  border: Border.all(color: const Color(0xFFD91A5B)), // Adjust color as needed
                   borderRadius: BorderRadius.circular(8.0),
                 ),
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Container(
                       margin: const EdgeInsets.only(bottom: 16.0),
                       child: Text(
@@ -202,35 +199,35 @@ class _ReservationPageState extends State<ReservationPage> {
                             : selectedLanguage == "Arabic"
                                 ? "تفاصيل الحجز"
                                 : "Détails de la réservation",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFFD91A5B),
                         ),
                       ),
                     ),
-                    _buildDetailRow4(
+                    _buildDetailRow3(
                       Icons.description,
                       selectedLanguage == "English"
                           ? "Service name"
                           : selectedLanguage == "Arabic"
                               ? "الوصف"
                               : "Nom de service",
-                      extractPlainText(widget.reservation.description),
+                      extractPlainText(widget.reservation.seviceName),
                       containerWidth,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildDetailRow3(
                       Icons.confirmation_number,
                       selectedLanguage == "English"
                           ? "Reservation Number"
                           : selectedLanguage == "Arabic"
                               ? "رقم الحجز"
-                              : "Numéro de réservation",
-                      '${widget.reservation.reservationNumber}',
+                              : "réf accent",
+                      widget.reservation.reservationNumber,
                       containerWidth,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildDetailRow3(
                       Icons.check,
                       selectedLanguage == "English"
@@ -241,7 +238,7 @@ class _ReservationPageState extends State<ReservationPage> {
                       widget.reservation.bookingStatus,
                       containerWidth,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     /* _buildDetailRow3(
                       Icons.payment,
                       selectedLanguage == "English"
@@ -259,13 +256,11 @@ class _ReservationPageState extends State<ReservationPage> {
                           ? "Date"
                           : selectedLanguage == "Arabic"
                               ? "التاريخ"
-                              : "Date",
-                      formatDateString(widget.reservation.date)
-                          .toString()
-                          .substring(0, 10),
+                              : "Date de rendez-vous",
+                      formatDateString(widget.reservation.date).toString().substring(0, 10),
                       containerWidth,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildDetailRow3(
                       Icons.access_time,
                       selectedLanguage == "English"
@@ -276,7 +271,7 @@ class _ReservationPageState extends State<ReservationPage> {
                       widget.reservation.start_at.toString().substring(11, 16),
                       containerWidth,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildDetailRow5(
                       Icons.attach_money,
                       selectedLanguage == "English"
@@ -323,64 +318,65 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  Widget _buildDetailRow(
-      IconData icon, String label, String value, double widt) {
+  Widget _buildDetailRow(IconData icon, String label, String value, double widt) {
     return Row(
       children: [
-        Icon(icon, color: Color(0xFFD91A5B)),
-        SizedBox(width: 10),
+        Icon(icon, color: const Color(0xFFD91A5B)),
+        const SizedBox(width: 10),
         Container(
             width: widt * 0.4,
             child: Text(
               label,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             )),
         Container(
             width: widt * 0.4 - 16,
             child: Text(
               ": " + value,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             )),
       ],
     );
   }
 
-  Widget _buildDetailRow2(
-      IconData icon, String label, String value, double widt) {
+  Widget _buildDetailRow2(IconData icon, String label, String value, double widt) {
     return Row(
       children: [
-        Icon(icon, color: Color(0xFFD91A5B)),
-        SizedBox(width: 10),
+        Icon(icon, color: const Color(0xFFD91A5B)),
+        const SizedBox(width: 10),
         Container(
             width: widt * 0.2,
             child: Text(
               label,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             )),
         Container(
             width: widt * 0.6 - 16,
             child: AutoSizeText(
               ": " + value,
               maxLines: 1,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             )),
       ],
     );
   }
 
-  Widget _buildDetailRow3(
-      IconData icon, String label, String value, double widt) {
+  Widget _buildDetailRow3(IconData icon, String label, String value, double widt) {
     return Row(
+      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(icon, color: Color(0xFFD91A5B)),
-        SizedBox(width: 10),
+        Icon(icon, color: const Color(0xFFD91A5B)),
+        const SizedBox(width: 10),
         Container(
           width: widt * 0.4,
           child: Text(
             label,
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
+        // SizedBox(
+        //   width: 10,
+        // ),
         Expanded(
           child: Container(
             width: widt * 0.4 - 50,
@@ -388,7 +384,7 @@ class _ReservationPageState extends State<ReservationPage> {
               ": " + value,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
           ),
         ),
@@ -396,17 +392,16 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  Widget _buildDetailRow5(
-      IconData icon, String label, String value, double widt) {
+  Widget _buildDetailRow5(IconData icon, String label, String value, double widt) {
     return Row(
       children: [
-        Icon(icon, color: Color(0xFFD91A5B)),
-        SizedBox(width: 10),
+        Icon(icon, color: const Color(0xFFD91A5B)),
+        const SizedBox(width: 10),
         Container(
           width: widt * 0.4,
           child: Text(
             label,
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
         Expanded(
@@ -447,20 +442,19 @@ class _ReservationPageState extends State<ReservationPage> {
     );
   }
 
-  Widget _buildDetailRow4(
-      IconData icon, String label, String value, double widt) {
+  Widget _buildDetailRow4(IconData icon, String label, String value, double widt) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon, color: Color(0xFFD91A5B)),
-            SizedBox(width: 10),
+            Icon(icon, color: const Color(0xFFD91A5B)),
+            const SizedBox(width: 10),
             Text(
               label + " : ",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            SizedBox(
+            const SizedBox(
               height: 8,
             ),
             Expanded(
@@ -470,7 +464,7 @@ class _ReservationPageState extends State<ReservationPage> {
                       value,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ))),
           ],
         ),

@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:spa/screens/login_view.dart';
 
 class CompressedImage extends StatefulWidget {
   final String imageUrl;
 
-  const CompressedImage({Key? key, required this.imageUrl}) : super(key: key);
+  const CompressedImage({super.key, required this.imageUrl});
 
   @override
-  _CompressedImageState createState() => _CompressedImageState();
+  State<CompressedImage> createState() => _CompressedImageState();
 }
 
 class _CompressedImageState extends State<CompressedImage> {
@@ -49,7 +50,7 @@ class _CompressedImageState extends State<CompressedImage> {
         _compressedImage = compressedImageFile;
       });
     } catch (e) {
-      print('Error compressing image: $e');
+      logger.e('Error compressing image: $e');
     }
   }
 

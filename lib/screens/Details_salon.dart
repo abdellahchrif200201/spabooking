@@ -45,7 +45,7 @@ class _SalonDetailsState extends State<SalonDetails> {
   String Tottal_review = '0';
   String avrage_review = '0';
   List<Map<String, dynamic>> availabilityData = [];
-  bool isOpenNow = false;
+  bool isOpenNow = true;
   String name = '';
   String description = '';
   List<String> images = [];
@@ -140,6 +140,7 @@ class _SalonDetailsState extends State<SalonDetails> {
               images = List<String>.from(targetSalon['media'].map((item) {
                 return item['original_url'];
               }));
+              isOpenNow = targetSalon["available"] == 1 ? true : false;
               if (images.isEmpty) {
                 images.add("https://spabooking.pro/assets/no-image-18732f44.png");
               }
@@ -170,7 +171,7 @@ class _SalonDetailsState extends State<SalonDetails> {
       logger.d('Error: $error');
     }
 
-    isSalonOpenNow();
+    // isSalonOpenNow();
 
     try {
       final response = await http.get(
@@ -1961,55 +1962,55 @@ class _SalonDetailsState extends State<SalonDetails> {
     return parse(document.body!.text).documentElement!.text;
   }
 
-  isSalonOpenNow() {
-    for (String day in [
-      'Lundi', // Monday
-      'Mardi', // Tuesday
-      'Mercredi', // Wednesday
-      'Jeudi', // Thursday
-      'Vendredi', // Friday
-      'Samedi', // Saturday
-      'Dimanche' // Sunday
-    ]) {
-      Map<String, dynamic> L = {};
+  // isSalonOpenNow() {
+  //   for (String day in [
+  //     'Lundi', // Monday
+  //     'Mardi', // Tuesday
+  //     'Mercredi', // Wednesday
+  //     'Jeudi', // Thursday
+  //     'Vendredi', // Friday
+  //     'Samedi', // Saturday
+  //     'Dimanche' // Sunday
+  //   ]) {
+  //     Map<String, dynamic> L = {};
 
-      var availability = availabilityData.firstWhere((availability) => availability['day'] == day, orElse: () => L);
+  //     var availability = availabilityData.firstWhere((availability) => availability['day'] == day, orElse: () => L);
 
-      if (availability.isEmpty) {
-        // Salon is not available on this day
-        setState(() {
-          isOpenNow = false;
-        });
-        return false;
-      }
+  //     if (availability.isEmpty) {
+  //       // Salon is not available on this day
+  //       setState(() {
+  //         isOpenNow = false;
+  //       });
+  //       return false;
+  //     }
 
-      String startTimeStr = availability['start_at'];
-      String endTimeStr = availability['end_at'];
+  //     String startTimeStr = availability['start_at'];
+  //     String endTimeStr = availability['end_at'];
 
-      DateTime startTime = DateFormat('HH:mm').parse(startTimeStr);
-      DateTime endTime = DateFormat('HH:mm').parse(endTimeStr);
-      DateTime currentTime = DateTime.now();
+  //     DateTime startTime = DateFormat('HH:mm').parse(startTimeStr);
+  //     DateTime endTime = DateFormat('HH:mm').parse(endTimeStr);
+  //     DateTime currentTime = DateTime.now();
 
-      logger.d("rrrrrrrrrrrrrrrrrrrrrrrr " + getCurrentDayNameInFrench());
-      logger.d("MMMMMMMMMMMMMMMMMMM " + day);
-      logger.d("NNNNNNNNNNNNNNNNNNNNNNNNNN " + startTime.hour.toString());
-      logger.d("eeeeeeeeeeeeeeeeeeeeeeeeeee " + endTime.hour.toString());
-      if (getCurrentDayNameInFrench() == day && currentTime.hour > startTime.hour && currentTime.hour < endTime.hour) {
-        logger.d("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + endTime.hour.toString());
-        setState(() {
-          isOpenNow = true;
-        });
-        return true;
-      } else {
-        // Salon is not open now
-        setState(() {
-          isOpenNow = false;
-        });
-      }
+  //     // logger.d("rrrrrrrrrrrrrrrrrrrrrrrr " + getCurrentDayNameInFrench());
+  //     // logger.d("MMMMMMMMMMMMMMMMMMM " + day);
+  //     // logger.d("NNNNNNNNNNNNNNNNNNNNNNNNNN " + startTime.hour.toString());
+  //     // logger.d("eeeeeeeeeeeeeeeeeeeeeeeeeee " + endTime.hour.toString());
+  //     if (getCurrentDayNameInFrench() == day && currentTime.hour > startTime.hour && currentTime.hour < endTime.hour) {
+  //       // logger.d("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + endTime.hour.toString());
+  //       setState(() {
+  //         isOpenNow = true;
+  //       });
+  //       return true;
+  //     } else {
+  //       // Salon is not open now
+  //       setState(() {
+  //         isOpenNow = false;
+  //       });
+  //     }
 
-      //  return currentTime.isAfter(startTime) && currentTime.isBefore(endTime);
-    }
-  }
+  //     //  return currentTime.isAfter(startTime) && currentTime.isBefore(endTime);
+  //   }
+  // }
 
   String formatDayNameInFrench(String dayName) {
     if (dayName.isNotEmpty) {
